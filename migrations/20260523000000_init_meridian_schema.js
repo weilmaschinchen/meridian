@@ -132,6 +132,10 @@ module.exports = {
   },
 
   down: function(db) {
+    if (!process.env.ALLOW_MERIDIAN_ROLLBACK) {
+      console.warn('[Meridian] down() blockiert — ALLOW_MERIDIAN_ROLLBACK nicht gesetzt');
+      return;
+    }
     db.exec('DROP TABLE IF EXISTS token_registry');
     db.exec('DROP TABLE IF EXISTS meridian_config');
     db.exec('DROP INDEX IF EXISTS idx_cr_domain');

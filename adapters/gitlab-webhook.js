@@ -28,7 +28,7 @@ function ingest(rawPayload, headers) {
       Buffer.from(token),
       Buffer.from(GITLAB_SECRET)
     )) {
-      console.warn('[GitLab-Adapter] Token-Mismatch — Payload ignoriert');
+      console.warn('[GitLab-Adapter] Webhook-Signatur ungültig — Payload ignoriert');
       return null;
     }
   }

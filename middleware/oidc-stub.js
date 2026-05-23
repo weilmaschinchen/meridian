@@ -145,7 +145,7 @@ function checkRouteRole(req) {
     var pathMatch = req.path && req.path.includes(rule.path);
     if (methodMatch && pathMatch) {
       if (!hasRole(maxRole, rule.role)) {
-        return 'Rolle ' + rule.role + ' erforderlich für ' + req.method + ' ' + req.path;
+        return `Rolle ${rule.role} erforderlich für ${req.method} ${req.path}`;
       }
     }
   }
