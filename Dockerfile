@@ -83,4 +83,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD wget -qO- "http://127.0.0.1:${PORT}/api/cra/health" >/dev/null 2>&1 || exit 1
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["node", "admin/server.js"]
+# Dedizierter Meridian-Entrypoint (kein kursflow-SSO/ADMIN_USER/Crons).
+# admin/server.js bleibt unangetastet das kursflow-Dashboard.
+CMD ["node", "meridian/server.js"]

@@ -1,0 +1,37 @@
+{
+  "_meta": {
+    "version": "0.1.0-meridian-default",
+    "updated": "2026-05-29",
+    "description": "Generische Meridian-Default-Regeln. Strukturell vollstaendig, aber ohne deployment-spezifische Inhalte. Eigene Regeln via MERIDIAN_RULES_PATH oder Admin-UI setzen. Welche Detektions-Regeln im OSS-Image mitgeliefert werden, entscheidet ADR-0035 (Rule-Authoring-Framework ist OSS, Rules selbst sind separat)."
+  },
+  "pipeline": {
+    "enabled": true,
+    "block_threshold": 20,
+    "approval_ttl_min": 30,
+    "prod_only_blocking": true,
+    "gates": {
+      "risk_assessment": true,
+      "code_review": true,
+      "security_check": true
+    }
+  },
+  "auto_fsc": {
+    "enabled": false,
+    "timezone": "UTC",
+    "backlog_threshold": 10,
+    "test_mode": false,
+    "dispatcher_autostart": false,
+    "enforce_window": { "start_hour": 23, "start_minute": 30, "end_hour": 4, "end_minute": 30 },
+    "schedules": [],
+    "max_retries_by_severity": { "CRITICAL": 3, "HIGH": 3, "MEDIUM": 2, "LOW": 1 }
+  },
+  "risk_patterns": [],
+  "secret_patterns": [],
+  "vuln_patterns": [],
+  "eol_dates": {},
+  "deploy_rules": [],
+  "architecture_rules": [],
+  "app_catalog": [],
+  "test_suites": [],
+  "apps": []
+}

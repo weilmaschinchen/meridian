@@ -1,0 +1,18 @@
+{
+  "_comment": "Meridian OSS-Core Konfiguration. ENV-Variablen haben Vorrang vor diesen Defaults. Siehe docs/meridian-extraction-plan.md §3.",
+  "server": {
+    "base_path": "/opt/meridian",
+    "host": "localhost",
+    "port": 3011
+  },
+  "repos": {
+    "paths": {},
+    "github_repos": []
+  },
+  "test_scripts": {},
+  "adapters": {
+    "forgejo_url": "http://localhost:3000",
+    "dashboard_url": "http://localhost:3011/cra"
+  },
+  "modules_enabled": ["core", "devops-gate", "audit-logger"]
+}
