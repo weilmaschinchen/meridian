@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 // meridian/server.js — Meridian OSS-Core Entrypoint (Container-Default)
 //
-// Bewusst getrennt vom kursflow-Dashboard admin/server.js. Dieser Entrypoint
-// enthaelt NICHTS kursflow-Spezifisches:
-//   • kein require('/opt/ks-sso/...')  → loest Boot-Crash B/#1
+// Bewusst getrennt vom privaten Ops-Dashboard. Dieser Entrypoint enthaelt KEINE
+// betreiber-spezifischen Altlasten:
+//   • kein require eines externen SSO-Moduls  → loest Boot-Crash B/#1
 //   • kein ADMIN_USER/ADMIN_PASS process.exit → loest Boot-Crash B/#2
-//   • keine kursflow-Crons / bash /opt/ks-management/*.sh / SSH-Calls → #4
+//   • keine betreiber-spezifischen Crons / Shell-/SSH-Calls → #4
 //
-// Er mountet ausschliesslich die generische CRA-API (admin/cra/cra-api.js),
-// die /api/cra/health bedient — exakt der Pfad, den der Dockerfile-HEALTHCHECK
-// und docker-compose pruefen.
+// Er mountet ausschliesslich die generische CRA-API, die /api/cra/health
+// bedient — exakt der Pfad, den der Dockerfile-HEALTHCHECK und docker-compose
+// pruefen.
 //
 // Auth: MERIDIAN_AUTH_ENABLED=1 erzwingt Token (X-CRA-Token: CRA_API_TOKEN).
 //       Default (Dev/Boot) = offen, damit der HEALTHCHECK ohne Credentials 200 bekommt.
