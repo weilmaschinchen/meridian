@@ -8,7 +8,7 @@ var CONTEXT = 'cra/gate';
 // Initial 'pending' nach 1st-Pass für HIGH/CRITICAL/MEDIUM-Kandidaten,
 // Final 'success'/'failure' nach reEvaluateStatus().
 var CONTEXT_2ND_PASS = 'cra/2nd-pass-review';
-var DASHBOARD_BASE = process.env.CRA_DASHBOARD_BASE || 'https://backup.kurvenschule.cloud/cra';
+var DASHBOARD_BASE = process.env.CRA_DASHBOARD_BASE || 'http://localhost:3011/cra';
 var tokenWarned = false;
 
 // CRA overallStatus → GitHub status state

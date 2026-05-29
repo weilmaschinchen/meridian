@@ -1,5 +1,5 @@
 // kis-context.js — KIS semantic context fetch for CRA review enrichment
-// Calls kspltf internal KB endpoint, returns a prompt block (or '' on failure).
+// Calls an internal KB endpoint, returns a prompt block (or '' on failure).
 // All errors are graceful — CRA review continues without context if KIS unavailable.
 
 var http = require('http');
@@ -7,7 +7,7 @@ var https = require('https');
 var urlParse = require('url').parse;
 
 var KIS_URL = process.env.KIS_INTERNAL_URL || '';
-var KIS_TOKEN = process.env.KURSFLOW_INTERNAL_TOKEN || '';
+var KIS_TOKEN = process.env.MERIDIAN_KB_TOKEN || '';
 var TIMEOUT_MS = 6000;
 
 function fetchKisContext(queryText, callback) {

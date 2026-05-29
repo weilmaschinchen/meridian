@@ -4,18 +4,11 @@ var https = require('https');
 
 var GH_TOKEN = process.env.GITHUB_CRA_TOKEN || '';
 
-// Liste der Repos, die wir tracken (Dependabot-Sync, Phase 0.5)
-var TRACKED_REPOS = [
-  'weilmaschinchen/ks-server-management',
-  'weilmaschinchen/team',
-  'weilmaschinchen/kurven-schule-assessment',
-  'weilmaschinchen/kurven-schule-buchung',
-  'weilmaschinchen/motopost',
-  'weilmaschinchen/motokompass',
-  'weilmaschinchen/vision-lab',
-  'weilmaschinchen/hvw',
-  'weilmaschinchen/kursmanager-platform'
-];
+// Getrackte Repos aus ENV (Dependabot-Sync). CRA Plus setzt MERIDIAN_GITHUB_REPOS
+// (JSON-Array "owner/repo"); OSS-Default = leer.
+var TRACKED_REPOS = (function () {
+  try { return JSON.parse(process.env.MERIDIAN_GITHUB_REPOS || '[]'); } catch (e) { return []; }
+})();
 
 function nowTs() {
   return new Date().toISOString().replace('T', ' ').split('.')[0];

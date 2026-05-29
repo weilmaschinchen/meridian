@@ -22,7 +22,7 @@ rules:
       technology:
         - typescript
       references:
-        - https://github.com/weilmaschinchen/kursmanager-platform/blob/main/docs/architecture/charter.md
+        - https://github.com/example/architecture-charter/blob/main/docs/architecture/charter.md
     fix: |
       Benennen Sie die Datei in die entsprechende .ts-Datei um und passen Sie alle Imports an.
 

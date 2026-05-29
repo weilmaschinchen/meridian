@@ -406,7 +406,9 @@ function canDeployProd() {
   if (!fsc) return { allowed: false, reason: 'Kein aktives FSC-Fenster' };
   var targets = [];
   try { targets = JSON.parse(fsc.allowed_targets || '[]'); } catch (e) {}
-  if (!targets.includes('kurvenschule') && !targets.includes('platform')) {
+  // Prod-Target-Namen aus ENV (CRA Plus: MERIDIAN_PROD_TARGETS; OSS-Default 'production').
+  var prodTargets = (process.env.MERIDIAN_PROD_TARGETS || 'production').split(',').map(function (s) { return s.trim(); });
+  if (!prodTargets.some(function (t) { return targets.includes(t); })) {
     return { allowed: false, reason: 'Fenster erlaubt nur: ' + targets.join(', ') };
   }
   return { allowed: true, window: fsc };
@@ -601,7 +603,7 @@ function pickTask() {
 }
 
 function buildWorkerPrompt(task, appName, workdir, sessionId) {
-  var craBase = process.env.CRA_BASE_URL || 'https://backup.kurvenschule.cloud';
+  var craBase = process.env.CRA_BASE_URL || 'http://localhost:3011';
   var craHeader = 'X-CRA-Token: ' + (process.env.CRA_API_TOKEN || '');
 
   // Check DB fuer App-spezifisches Override

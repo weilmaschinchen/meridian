@@ -2,7 +2,7 @@ rules:
   - id: rule-arch-13-shared-symlink
     message: >-
       Symlink-Import von 'shared/' erkannt. Nutze
-      stattdessen das versionierte @kursflow/* npm-Paket.
+      stattdessen das versionierte @example/* npm-Paket.
       (ADR-0026 §4)
     severity: HIGH
     languages:
@@ -24,7 +24,7 @@ rules:
         - ts
       references:
         - ADR-0026
-        - https://github.com/weilmaschinchen/kursmanager-platform/blob/main/docs/architecture/charter.md
+        - https://github.com/example/architecture-charter/blob/main/docs/architecture/charter.md
     fix: >-
-      Ersetze den relativen Import durch `@kursflow/shared` (einmal `npm install @kursflow/shared`)
+      Ersetze den relativen Import durch `@example/shared` (einmal `npm install @example/shared`)
       und importiere das versionierte Modul.

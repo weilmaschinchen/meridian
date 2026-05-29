@@ -14,10 +14,10 @@ const goodFixtures = [
     `
   },
   {
-    description: 'Import from @kursflow/shared package',
+    description: 'Import from @example/shared package',
     file: 'teamService.js',
     content: `
-      import { Logger } from '@kursflow/shared';
+      import { Logger } from '@example/shared';
       Logger.log('test');
     `
   },

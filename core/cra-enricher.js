@@ -14,24 +14,12 @@ var llm = require('../lib/llm'); // LLM-Abstraktion (CRA Plus bindet via MERIDIA
 var ENRICHER_HOUR = 22;  // 22:00 CET
 var CHECK_INTERVAL = 60 * 60 * 1000; // Jede Stunde pruefen ob 22:00
 
-// App → Server-Pfad Mapping
-var APP_PATHS = {
-  'kurven-schule-buchung': '/home/kurvenschule-kurse/kurse-app',
-  'kurse': '/home/kurvenschule-kurse/kurse-app',
-  'staging-kurse': '/home/kurvenschule-staging-kurse/htdocs/staging-kurse.kurvenschule.cloud',
-  'team': '/home/kurvenschule-team/htdocs/team.kurvenschule.cloud',
-  'motopost': '/home/motopost/htdocs/social.kurvenschule.cloud',
-  'motokompass': '/home/motokompass-app',
-  'kurven-schule-assessment': '/home/kurvenschule-assessment/assessment-app',
-  'hvw': '/home/kurvenschule-hvw/htdocs/hvw.kurvenschule.cloud',
-  'kursmanager-platform': '/home/kspltf/htdocs/kspltf.kurvenschule.cloud',
-  'ks-server-management': '/opt/ks-management',
-  'management': '/opt/ks-management',
-  'vision-lab': '/home/kurvenschule-vision/htdocs/vision.kurvenschule.cloud',
-};
+// App → Server-Pfad Mapping. Default leer (OSS); die deployment-spezifische Map
+// kommt aus MERIDIAN_APP_PATHS (JSON), siehe unten.
+var APP_PATHS = {};
 
 // Meridian: MERIDIAN_APP_PATHS (JSON-Map repo->pfad) ergaenzt/ueberschreibt die
-// kursflow-Defaults. Ohne ENV bleiben die Defaults (backward-kompatibel).
+// Standard-Defaults. Ohne ENV bleiben die Defaults (backward-kompatibel).
 if (process.env.MERIDIAN_APP_PATHS) {
   try {
     Object.assign(APP_PATHS, JSON.parse(process.env.MERIDIAN_APP_PATHS));

@@ -9,7 +9,7 @@
 
 const rule = {
   id: 'arch-13',
-  message: 'Symlink-Import von shared/ verboten — nutze versioniertes @kursflow/* npm-Paket.',
+  message: 'Symlink-Import von shared/ verboten — nutze versioniertes @example/* npm-Paket.',
   // Regex aus cra-rules.json, ohne diff-spezifischen ^\+.*
   pattern: /(?:from\s+['"`](?:\.{1,2}\/)+shared\/|require\(['"`](?:\.{1,2}\/)+shared\/)/
 };
@@ -19,12 +19,12 @@ function runRule(code) {
 }
 
 const goodFixtures = [
-  { name: 'import from npm package @kursflow/shared', code: `import { util } from '@kursflow/shared';` },
+  { name: 'import from npm package @example/shared', code: `import { util } from '@example/shared';` },
   { name: 'import from absolute path (no symlink)', code: `import config from '/opt/shared/config.js';` },
-  { name: 'require npm package @kursflow/shared', code: `const shared = require('@kursflow/shared');` },
+  { name: 'require npm package @example/shared', code: `const shared = require('@example/shared');` },
   { name: 'import from same directory (not shared/)', code: `import { helper } from './helpers';` },
   { name: 'import from parent directory but not shared/', code: `import db from '../db/connection';` },
-  { name: 'import using template literal (not relative)', code: "const mod = require(`@kursflow/${name}`);" }
+  { name: 'import using template literal (not relative)', code: "const mod = require(`@example/${name}`);" }
 ];
 
 const badFixtures = [

@@ -32,4 +32,4 @@ rules:
     metadata:
       category: architecture
       rule-source: "arch-16"
-      links: ["https://github.com/weilmaschinchen/kursmanager-platform/blob/main/docs/architecture/charter.md"]
+      links: ["https://github.com/example/architecture-charter/blob/main/docs/architecture/charter.md"]

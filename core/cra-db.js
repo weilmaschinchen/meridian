@@ -6,7 +6,7 @@ var path = require('path');
 
 // DB_PATH/MERIDIAN_DB_PATH erlauben Meridian-Deployments (Container: /data/meridian.db)
 // auf dieselbe Datei zu zeigen, die meridian/migrate.js nutzt. Ohne ENV bleibt der
-// kursflow-Pfad data/cra.db erhalten (backward-kompatibel, kein Verhalten geaendert).
+// Standard-Pfad data/cra.db erhalten (backward-kompatibel, kein Verhalten geaendert).
 var DB_PATH = process.env.DB_PATH || process.env.MERIDIAN_DB_PATH || path.join(__dirname, '..', '..', 'data', 'cra.db');
 var db = null;
 
@@ -74,7 +74,7 @@ async function initCraDb() {
   // bei aktuell 99.3% agree-with-1st nahezu kein Quality-Verlust).
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN llm_review_confidence REAL"); } catch (e) { /* Spalte existiert bereits */ }
 
-  // Migration: 2nd-Pass-Review fuer Phase 4 Option D (2026-04-25, lights-out)
+  // Migration: 2nd-Pass-Review fuer Phase 4 Option D (2026-04-25)
   // 14b verifiziert nochmals: alle disagrees + alle BLOCKED + alle HIGH/CRITICAL.
   // 2nd_status: 'agree-with-1st', 'disagree-with-1st', 'no_run'
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN llm_review_2nd_status TEXT"); } catch (e) {}

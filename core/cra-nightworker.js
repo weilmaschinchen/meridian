@@ -167,7 +167,7 @@ function sandboxOn(user) {
     validateUser(user);
     // Nur localhost + eigener Server erlaubt, alles andere blocked
     runIptables(['-A', 'OUTPUT', '-m', 'owner', '--uid-owner', user, '-d', '127.0.0.0/8', '-j', 'ACCEPT']);
-    runIptables(['-A', 'OUTPUT', '-m', 'owner', '--uid-owner', user, '-d', (process.env.MERIDIAN_SERVER_HOST || '82.29.172.97'), '-j', 'ACCEPT']);
+    runIptables(['-A', 'OUTPUT', '-m', 'owner', '--uid-owner', user, '-d', (process.env.MERIDIAN_SERVER_HOST || 'localhost'), '-j', 'ACCEPT']);
     runIptables(['-A', 'OUTPUT', '-m', 'owner', '--uid-owner', user, '-j', 'DROP']);
     console.log('[NW] Sandbox ON fuer', user);
   } catch(e) {
@@ -180,7 +180,7 @@ function sandboxOff(user) {
     validateUser(user);
     // Regeln entfernen (in umgekehrter Reihenfolge). -D kann fehlschlagen wenn Regel nicht existiert — OK.
     try { runIptables(['-D', 'OUTPUT', '-m', 'owner', '--uid-owner', user, '-j', 'DROP']); } catch(e) {}
-    try { runIptables(['-D', 'OUTPUT', '-m', 'owner', '--uid-owner', user, '-d', (process.env.MERIDIAN_SERVER_HOST || '82.29.172.97'), '-j', 'ACCEPT']); } catch(e) {}
+    try { runIptables(['-D', 'OUTPUT', '-m', 'owner', '--uid-owner', user, '-d', (process.env.MERIDIAN_SERVER_HOST || 'localhost'), '-j', 'ACCEPT']); } catch(e) {}
     try { runIptables(['-D', 'OUTPUT', '-m', 'owner', '--uid-owner', user, '-d', '127.0.0.0/8', '-j', 'ACCEPT']); } catch(e) {}
     console.log('[NW] Sandbox OFF fuer', user);
   } catch(e) { /* ignore */ }

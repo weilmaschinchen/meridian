@@ -5,11 +5,11 @@ var http = require('http');
 var urlMod = require('url');
 
 var TOKEN = process.env.FORGEJO_CRA_TOKEN || '';
-var FORGEJO_BASE = process.env.FORGEJO_BASE_URL || 'https://forgejo.kurvenschule.cloud';
+var FORGEJO_BASE = process.env.FORGEJO_BASE_URL || 'http://localhost:3000';
 var FORGEJO_INTERNAL = process.env.FORGEJO_INTERNAL_URL || 'http://10.89.4.20:3010';
 var CONTEXT = 'cra/gate';
 var CONTEXT_2ND_PASS = 'cra/2nd-pass-review';
-var DASHBOARD_BASE = process.env.CRA_DASHBOARD_BASE || 'https://backup.kurvenschule.cloud/cra';
+var DASHBOARD_BASE = process.env.CRA_DASHBOARD_BASE || 'http://localhost:3011/cra';
 var tokenWarned = false;
 
 function mapState(overallStatus) {

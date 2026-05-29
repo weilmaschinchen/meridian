@@ -357,7 +357,7 @@ function findDbFiles(appConfig, appDir) {
 }
 
 function sshExec(appConfig, cmd) {
-  var result = child.spawnSync('ssh', ['root@' + (process.env.MERIDIAN_SERVER_HOST || '82.29.172.97'), cmd], {
+  var result = child.spawnSync('ssh', ['root@' + (process.env.MERIDIAN_SERVER_HOST || 'localhost'), cmd], {
     encoding: 'utf8', timeout: 30000
   });
   if (result.error) throw result.error;

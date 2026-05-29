@@ -3,7 +3,7 @@ var fs = require('fs');
 var path = require('path');
 
 // MERIDIAN_RULES_PATH erlaubt es Betreibern, eigene Regeln einzuhängen. Ohne ENV
-// bleibt der kursflow-Pfad data/cra-rules.json (backward-kompatibel).
+// bleibt der Standard-Pfad data/cra-rules.json (backward-kompatibel).
 var RULES_PATH = process.env.MERIDIAN_RULES_PATH || path.join(__dirname, '..', '..', 'data', 'cra-rules.json');
 // Gebündelte generische Default-Regeln (im Meridian-Image vorhanden, wenn data/cra-rules.json fehlt).
 var DEFAULT_RULES_PATH = path.join(__dirname, '..', '..', 'meridian', 'default-rules.json');

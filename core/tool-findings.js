@@ -3,7 +3,7 @@
 // Frisst Outputs von Semgrep, Trivy, Gitleaks, ESLint, Dependabot. Persistiert in
 // tool_findings (UNIQUE pro repo+sha+tool+rule_id+file+line).
 //
-// Klassifikation kommt in Phase 1.2 (qwen-client + Haiku-Eskalation), schreibt
+// Klassifikation kommt in Phase 1.2 (Prep-Pipeline + Eskalation), schreibt
 // ai_severity/ai_confidence/ai_reason/ai_suggested_fix in dieselbe Zeile.
 
 var craDb = require('./cra-db');

@@ -13,8 +13,6 @@
 // 'disagree' setzt KEIN Block — nur informativ im Report. Block bleibt regel-basiert.
 
 var craDb = require('./cra-db');
-var plugins = require('../lib/plugins');
-var qwenClient = plugins.load('qwen-client'); // optional (CRA-Plus-Plugin via MERIDIAN_PLUGINS_DIR)
 var https = require('https');
 var http = require('http');
 
@@ -22,7 +20,7 @@ var ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY || '';
 var HAIKU_MODEL = 'claude-haiku-4-5-20251001';
 
 // Direct-Ollama (Phase 4 Bug-Fix 2026-04-27):
-// kspltf-prep-Worker verlangt ```diff-Block — unser JSON-Output failed dort.
+// prep-Worker verlangt ```diff-Block — unser JSON-Output failed dort.
 // Direct-Call zu Tailscale-Mac umgeht das Format-Constraint.
 var OLLAMA_HOST = process.env.OLLAMA_HOST_DIRECT || '100.109.108.63:11434';
 var QWEN_DIRECT_MODEL = process.env.QWEN_DIRECT_MODEL || 'qwen2.5-coder:14b-instruct-q4_K_M';
@@ -348,7 +346,7 @@ function parseReviewJson(text) {
 }
 
 // ── Routing ──────────────────────────────────────────────────────────────
-// Phase 4 Option D Hybrid (2026-04-25, lights-out):
+// Phase 4 Option D Hybrid (2026-04-25):
 // - Risk-Cases (Diff>=500 OR score>=10 OR HIGH/CRITICAL findings) → Qwen 14b (höchste Quality)
 // - Rest → Haiku (schnell, kostet etwas)
 // Frueher: alles Qwen 7b first, Haiku-Eskalation. Mit dedicated 14b kein 7b mehr.
@@ -412,7 +410,7 @@ async function reviewRfc(rfcId) {
       }
     }
   } else if (!result && route === 'qwen') {
-    // Phase 4 Bug-Fix 2026-04-27: Direct-Ollama (umgeht kspltf-Worker-diff-Constraint)
+    // Phase 4 Bug-Fix 2026-04-27: Direct-Ollama (umgeht prep-Worker-diff-Constraint)
     var qRes = await callOllamaDirect(prompt);
     if (qRes.ok) {
       result = parseReviewJson(qRes.text);

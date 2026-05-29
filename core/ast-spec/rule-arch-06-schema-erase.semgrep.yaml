@@ -15,7 +15,7 @@ rules:
       ts-morph: true
       severity: HIGH
       references:
-        - https://github.com/weilmaschinchen/kursmanager-platform/blob/main/docs/architecture/charter.md#p8-l%C3%B6schpflicht-bei-pii
+        - https://github.com/example/architecture-charter/blob/main/docs/architecture/charter.md#p8-l%C3%B6schpflicht-bei-pii
         - ADR-0014
     severity: ERROR
     languages:

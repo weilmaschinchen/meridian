@@ -12,15 +12,16 @@ var deploySafety = require('./cra-deploy-safety');
 var githubStatus = require('./github-status');
 var githubChecks = require('./github-checks');
 var plugins = require('../lib/plugins');
-var qwenClient = plugins.load('qwen-client'); // optional (CRA-Plus-Plugin via MERIDIAN_PLUGINS_DIR)
+var loadedPlugins = plugins.loadEnabled(); // CRA-Plus/Enterprise-Plugins via MERIDIAN_PLUGINS
 var toolFindings = require('./tool-findings');
 var toolFindingsClassifier = require('./tool-findings-classifier');
 var rfcLlmReview = require('./rfc-llm-review');
-var lightsOut = plugins.load('lights-out-api'); // optional (CRA-Plus-Plugin via MERIDIAN_PLUGINS_DIR)
 var watchdog = require('./watchdog-api');
 
-// Einmalige DB-Migrationen (idempotent, ALTER TABLE / CREATE IF NOT EXISTS)
-try { if (lightsOut) lightsOut.ensureGtmJobsTable(); } catch (e) { console.error('[CRA/init] gtm-jobs:', e.message); }
+// Plugin-Init (idempotente DB-Migrationen etc.) — Plugins bringen optionales init() mit.
+loadedPlugins.forEach(function (p) {
+  if (typeof p.mod.init === 'function') { try { p.mod.init(); } catch (e) { console.error('[CRA/init] plugin ' + p.name + ':', e.message); } }
+});
 try { watchdog.ensureWatchdogColumns(); } catch (e) { console.error('[CRA/init] watchdog-cols:', e.message); }
 
 var CRA_TOKEN = process.env.CRA_API_TOKEN;
@@ -53,6 +54,12 @@ function craApi(req, res, url, opts) {
   var json = opts.json;
   var authed = opts.authed;
   var bodyFn = opts.body;
+
+  // Plugin-Routen (CRA Plus / Enterprise). Plugins handhaben eigene Auth via ctx.
+  for (var _pi = 0; _pi < loadedPlugins.length; _pi++) {
+    var _pm = loadedPlugins[_pi].mod;
+    if (typeof _pm.handleRoute === 'function' && _pm.handleRoute(req, res, url, { json: json, authed: authed, tokenAuth: tokenAuth, body: bodyFn })) return;
+  }
 
   // ── Oeffentliche Endpoints (Token-Auth fuer MCP/Hooks) ────────
 
@@ -558,15 +565,6 @@ function craApi(req, res, url, opts) {
     return json(res, githubChecks.getSecurityStats());
   }
 
-  // GET /api/cra/qwen/health → Status der Qwen-Coding-Prep-Pipeline (Phase 0.6)
-  if (url === '/api/cra/qwen/health' && req.method === 'GET') {
-    if (!tokenAuth(req) && !authed(req)) return json(res, { error: 'Unauthorized' }, 401);
-    if (!qwenClient) return json(res, { reachable: false, error: 'qwen-client Plugin nicht installiert' }, 501);
-    qwenClient.health().then(function(h) {
-      json(res, h);
-    }).catch(function(e) { json(res, { reachable: false, error: e.message }, 500); });
-    return;
-  }
 
   // ── Tool-Findings (Phase 1.1) ─────────────────────────────────
   // POST /api/cra/tool-findings/ingest → SARIF/JSON von Tool-Workflows einsammeln
@@ -2363,16 +2361,7 @@ function craApi(req, res, url, opts) {
     });
   }
 
-  // ── Lights-Out + Watchdog (Phase 4 Auto-Recovery, 30.04.2026) ────
-  // Token-Auth in den Modulen selbst (X-CRA-Token gegen process.env.CRA_API_TOKEN)
-  if (url.indexOf('/api/cra/lights-out/') === 0 && req.method === 'POST') {
-    if (!lightsOut) return json(res, { error: 'lights-out Plugin nicht installiert' }, 501);
-    if (url === '/api/cra/lights-out/review-1st') return lightsOut.review1st(req, res);
-    if (url === '/api/cra/lights-out/review-2nd') return lightsOut.review2nd(req, res);
-    if (url === '/api/cra/lights-out/gtm-track')  return lightsOut.gtmTrack(req, res);
-    if (url === '/api/cra/lights-out/drain-all')  return lightsOut.drainAll(req, res);
-    if (url === '/api/cra/lights-out/preview')    return lightsOut.preview(req, res);
-  }
+  // ── Watchdog (Phase 4 Auto-Recovery). Plugin-Routen liefern die Plugins selbst. ──
   if (url === '/api/cra/watchdog/check' && req.method === 'POST') {
     return watchdog.checkAll(req, res);
   }
