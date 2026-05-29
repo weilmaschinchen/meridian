@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // meridian/middleware/oidc-stub.js
 // OIDC-Authentifizierungs-Middleware für Meridian (Phase 1 Stub)
 //

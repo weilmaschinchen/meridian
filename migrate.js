@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// SPDX-License-Identifier: Apache-2.0
 // meridian/migrate.js — Schema-Migration-Runner für Meridian
 //
 // Verwendung:

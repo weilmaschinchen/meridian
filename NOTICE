@@ -1,0 +1,16 @@
+Meridian — Unified IT Change Intelligence Platform (OSS Core)
+Copyright 2026 Andre / kurven.schule®
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+this file except in compliance with the License. You may obtain a copy of the
+License in the accompanying LICENSE file or at:
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Third-party components distributed alongside or required at runtime are listed,
+with their respective licenses and source links, in THIRD-PARTY-LICENSES.md.
+
+The proprietary Meridian commercial add-ons (itil-change, incident-mgmt,
+problem-mgmt, privacy-filter, identity, reporting, workflow-mgmt) and the
+Meridian Cloud SaaS are NOT part of this Apache-2.0 distribution and are not
+covered by this NOTICE.

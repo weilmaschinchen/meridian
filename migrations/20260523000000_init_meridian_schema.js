@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // meridian/migrations/20260523000000_init_meridian_schema.js
 // Initiale Meridian-Schema-Migration
 // Erstellt: change_records + meridian_config Tabellen

@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Hält den Build-Context klein und verhindert, dass Secrets/State ins Image lecken.
+node_modules
+**/node_modules
+.git
+.gitignore
+*.log
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+data/
+backups/
+.env
+.env.*
+!.env.example
+docs/**/*.pdf
+infra/podman/**/secrets
+tests/**/*.tmp
+**/.DS_Store
+coverage/
+.vscode/
+.idea/

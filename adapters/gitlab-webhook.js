@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // meridian/adapters/gitlab-webhook.js
 // Inbound-Adapter: GitLab Webhook → Change Record (domain=devops)
 //

@@ -1,0 +1,87 @@
+# SPDX-License-Identifier: Apache-2.0
+# Meridian — Self-Hosted Stack (Szenario: DevOps-Core + Audit)
+#
+# Dieses Compose ist Docker- UND Podman-kompatibel (podman-compose / docker compose).
+# Es bildet die OSS-Core-relevanten Dienste ab und backt die drei Lizenz-Blocker
+# als gelöste Vorgabe ein:
+#   B-01  MinIO (AGPL-3.0)            → seaweedfs (Apache-2.0), S3 + Object-Lock/WORM
+#   B-02  PM2 (AGPL-3.0)             → KEIN PM2; restart: unless-stopped + tini (PID 1)
+#   B-03  Semgrep-Registry-Rules     → ast-engine baut auf Opengrep (siehe ast-engine/Dockerfile)
+#
+# Start:   docker compose -f meridian/docker-compose.yml up -d
+# Health:  docker compose -f meridian/docker-compose.yml ps
+#          curl -fsS http://localhost:3011/api/cra/health
+#
+# Vor dem ersten Start: cp meridian/.env.example .env  und Werte setzen.
+
+name: meridian
+
+networks:
+  meridian-internal:
+    driver: bridge
+
+volumes:
+  meridian-data:      # SQLite-DB (better-sqlite3) — persistent
+  seaweedfs-data:     # WORM-Audit-Storage
+  chroma-data:        # FP-Embeddings / semantische Suche
+
+services:
+  # ── Meridian Core (Node.js, kein PM2) ───────────────────────────────────
+  meridian:
+    build:
+      context: ..
+      dockerfile: meridian/Dockerfile
+    image: meridian/core:dev
+    container_name: meridian-core
+    restart: unless-stopped              # B-02: Container-natives Process-Mgmt
+    init: true                           # zusätzlicher Reaper-Schutz
+    env_file: ../.env
+    environment:
+      NODE_ENV: production
+      PORT: "3011"
+      DB_PATH: /data/meridian.db
+      # S3/WORM zeigt auf SeaweedFS statt MinIO — AWS SigV4 bleibt identisch.
+      CRA_MINIO_ENDPOINT: seaweedfs
+      CRA_MINIO_PORT: "8333"
+      AST_ENGINE_URL: http://ast-engine:8001
+      CHROMA_URL: http://chroma:8000
+    volumes:
+      - meridian-data:/data
+    ports:
+      - "127.0.0.1:3011:3011"            # nur lokal; TLS-Terminierung via Reverse-Proxy
+    depends_on:
+      seaweedfs:
+        condition: service_started
+    networks: [meridian-internal]
+
+  # ── WORM-Audit-Storage (B-01: SeaweedFS, Apache-2.0) ────────────────────
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest    # Apache-2.0 — Drop-in für MinIO S3
+    container_name: meridian-seaweedfs
+    restart: unless-stopped
+    command: server -s3 -s3.port=8333 -dir=/data -master.volumeSizeLimitMB=1024
+    volumes:
+      - seaweedfs-data:/data
+    ports:
+      - "127.0.0.1:8333:8333"            # S3-API (ersetzt MinIO 9000)
+      - "127.0.0.1:9333:9333"            # Master/Admin
+    networks: [meridian-internal]
+
+  # ── AST-Engine (B-03: Opengrep statt Semgrep-Registry) ──────────────────
+  ast-engine:
+    build:
+      context: ../infra/podman/cra-plus/ast-engine
+      dockerfile: Dockerfile.opengrep    # Opengrep (LGPL-2.1) statt Semgrep-Registry
+    image: meridian/ast-engine:dev
+    container_name: meridian-ast-engine
+    restart: unless-stopped
+    networks: [meridian-internal]
+
+  # ── Vektor-DB für FP-Embeddings / semantische Suche (Apache-2.0) ─────────
+  chroma:
+    image: chromadb/chroma:latest        # Apache-2.0
+    container_name: meridian-chroma
+    restart: unless-stopped
+    volumes:
+      - chroma-data:/chroma/chroma
+    networks: [meridian-internal]
