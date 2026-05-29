@@ -1,0 +1,21 @@
+rules:
+  - id: arch-12-mysql2-direct
+    message: |
+      mysql2-Import außerhalb infrastructure/ verboten (arch-12, ADR-0026 §1).
+      Domain-Code darf nur Repository-Ports nutzen, keine direkten DB-Zugriffe.
+      Bitte refaktorieren: Infrastructure-Layer -> repository.ts.
+    severity: HIGH
+    languages:
+      - javascript
+      - typescript
+    patterns:
+      - pattern-either:
+          - pattern: |
+              import ... from '$M'
+          - pattern: |
+              const $X = require('$M')
+      - metavariable-regex:
+          metavariable: $M
+          regex: ^(mysql2|mysql2/promise)$
+    paths:
+      exclude:

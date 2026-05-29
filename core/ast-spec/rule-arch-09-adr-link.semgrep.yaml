@@ -1,0 +1,15 @@
+# rule-arch-09-adr-link.semgrep.yaml
+# Cross-Cutting Rule: ADR-Bezug bei Architektur-Änderungen
+# Severity: INFO
+# 
+# Diese Regel wird nicht via Semgrep-Pattern implementiert, sondern im CRA-Detector
+# als PR-Metadata-Heuristik (Titel + Commit-msgs + geänderte Files).
+#
+# Siehe CRA-Detector: admin/cra/rules/arch-09-adr-link.js
+rules:
+  - id: arch-09-adr-link
+    severity: INFO
+    message: >-
+      Architektur-relevante Änderungen sollten einen ADR-Verweis (ADR-XXXX) im PR-Titel enthalten.
+      (Cross-Cutting; Heuristik im CRA-Detector)
+    languages: [generic]

@@ -1,0 +1,36 @@
+rules:
+  - id: rule-arch-02-tenant-context
+    severity: CRITICAL
+    languages:
+      - javascript
+      - typescript
+    message: >
+      arch-02: DB-Query ohne TenantContext-Parameter —
+      muss durch tenantContext im Funktions-Signatur ergänzt werden
+      (Charta P2, ADR-0008)
+    patterns:
+      - pattern: $DB.$METHOD(...)
+      - metavariable-regex:
+          metavariable: $DB
+          regex: ^(db|conn|pool|connection)$
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: ^(query|execute|run)$
+      - pattern-not-inside:
+          pattern-either:
+            - pattern: |
+                function $FUNC($...A, tenantContext, $...B) {
+                  ...
+                }
+            - pattern: |
+                ($...A, tenantContext, $...B) => {
+                  ...
+                }
+            - pattern: |
+                $OBJ.$FUNC($...A, tenantContext, $...B) {
+                  ...
+                }
+            - pattern: |
+                $FUNC($...A, tenantContext, $...B) {
+                  ...
+                }

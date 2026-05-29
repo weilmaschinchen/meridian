@@ -1,0 +1,35 @@
+rules:
+  - id: arch-16-schema-slug
+    severity: HIGH
+    languages:
+      - js
+      - ts
+      - generic
+    message: >
+      Tenant-Schema-Name muss /^tenant_[a-z0-9_]+$/ matchen.
+      Reservierte Namen (tenant_platform, tenant_staging, tenant_test,
+      tenant_system, tenant_mysql) sind verboten.
+      ADR-0020 §7.
+    pattern-either:
+      # reservierte Schema-Namen
+      - pattern: |
+          CREATE SCHEMA tenant_platform
+      - pattern: |
+          CREATE SCHEMA tenant_staging
+      - pattern: |
+          CREATE SCHEMA tenant_test
+      - pattern: |
+          CREATE SCHEMA tenant_system
+      - pattern: |
+          CREATE SCHEMA tenant_mysql
+      # sonstige Formatverstöße (Großbuchstaben, Bindestriche, etc.)
+      - patterns:
+          - pattern: |
+              CREATE SCHEMA $SCHEMA
+          - metavariable-regex:
+              metavariable: $SCHEMA
+              regex: '^(?!tenant_[a-z0-9_]+$).*$'
+    metadata:
+      category: architecture
+      rule-source: "arch-16"
+      links: ["https://github.com/weilmaschinchen/kursmanager-platform/blob/main/docs/architecture/charter.md"]

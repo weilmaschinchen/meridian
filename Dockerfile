@@ -63,10 +63,11 @@ WORKDIR /opt/meridian
 # Bereits aufgelöste node_modules aus dem builder übernehmen.
 COPY --from=builder /build/node_modules ./node_modules
 
-# Applikationscode. Aktuell liegt der Core unter admin/ + meridian/.
-# (Nach Phase-1-Extraktion: COPY src/ ./src/ und CMD anpassen.)
-COPY package.json meridian.config.json* ./
-COPY admin ./admin
+# Applikationscode. Der CRA-Kern liegt self-contained unter meridian/core + meridian/lib
+# (Phase-2-Extraktion abgeschlossen). admin/ wird NICHT mehr benötigt → kleineres,
+# OSS-reines Image. CRA-Plus-Plugins (deploy/cra-plus) werden nur im Trunk-Build via
+# ENV (MERIDIAN_PLUGINS_DIR/_LLM_ADAPTER/_OPSDESK_DIR) eingebunden, nicht im OSS-Image.
+COPY package.json ./
 COPY meridian ./meridian
 
 # Persistentes, beschreibbares Datenverzeichnis für die SQLite-DB.

@@ -1,0 +1,28 @@
+rules:
+  - id: arch-06-schema-with-pii-no-erase
+    patterns:
+      - pattern-regex: |
+          CREATE\s+TABLE\s+(?P<table>\w+)\s*\(([^)]*\b(?:email|phone|iban|tax_id|birthdate|address)\b[^)]*)\)
+    message: |-
+      CREATE TABLE '{{ table }}' enthält PII-Spalte (email, phone, iban, tax_id, birthdate, address).
+      CRITICAL: Cross-File-Check: Erase-Statement in <context>/erase.ts erforderlich (Charta P8, ADR-0014).
+      Ein passender Erase-Eintrag (z.B. `async function erase{{ table | capitalize }}`) muss in <context>/erase.ts vorhanden sein.
+      Diese Semgrep-Regel erzeugt einen Warnhinweis; die tatsächliche Prüfung erfolgt über das ts-morph-basierte Cross-File-Check-Script.
+    metadata:
+      category: architecture
+      rule-id: arch-06
+      cross-file: true
+      ts-morph: true
+      severity: HIGH
+      references:
+        - https://github.com/weilmaschinchen/kursmanager-platform/blob/main/docs/architecture/charter.md#p8-l%C3%B6schpflicht-bei-pii
+        - ADR-0014
+    severity: ERROR
+    languages:
+      - generic
+    paths:
+      include:
+        - "**/migrations/*.sql"
+      exclude:
+        - "node_modules/"
+        - "**/test/**"

@@ -1,0 +1,24 @@
+rules:
+  - id: arch-04-jwt-decode
+    # Kombination aus verify() und decode(), weil beides token-verändernde
+    # Operationen sind, die ausschliesslich in auth/JwtVerifier.ts erlaubt sind.
+    pattern-either:
+      - pattern: jwt.verify(...)
+      - pattern: jwt.decode(...)
+    message: |
+      JWT verify/decode ausserhalb auth/JwtVerifier.ts.
+      Siehe Charter §4 (Token-Verarbeitung), ADR-0010 (Zentrale JWT-Instanz).
+      Alle JWT-Operationen müssen über die zentrale JwtVerifier-Komponente
+      abgewickelt werden, um einheitliche Fehlerbehandlung, Tenant-Isolation
+      und Audit-Logging zu gewährleisten.
+    severity: HIGH
+    languages:
+      - javascript
+      - typescript
+    paths:
+      exclude:
+        - "auth/JwtVerifier.ts"
+        - "**/auth/JwtVerifier.ts"
+    metadata:
+      rule_id: arch-04
+      enabled: false  # disabled until JwtVerifier-Lib centralisiert (Phase 0c)

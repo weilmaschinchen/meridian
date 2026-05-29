@@ -1,0 +1,24 @@
+rules:
+  - id: arch-14-cross-context-import
+    languages:
+      - generic
+    severity: MEDIUM
+    message: |
+      Cross-Context import detected. Direct function calls between modules 
+      of different contexts are forbidden by ADR-0026 §2. 
+      Use Event-Bus or Port-Interfaces for cross-context communication.
+      See ts-morph integration for call-site analysis (LO-P3-tsmorph).
+    metadata:
+      arch-rule-id: arch-14
+      adr: ADR-0026
+      integration: ts-morph
+    patterns:
+      - pattern-regex: |
+          (?:from\s+['"]\.\./\.\./(?:team|hvw|kurse|assessment|motopost|motokompass|management|vision)/|require\(['"]\.\./\.\./(?:team|hvw|kurse|assessment|motopost|motokompass|management|vision)/)
+    paths:
+      include:
+        - "*.js"
+        - "*.ts"
+      exclude:
+        - "node_modules/"
+        - "**/__tests__/**"

@@ -1,0 +1,24 @@
+rules:
+  - id: arch-11-branche-switch
+    message: "Branchen-Verzweigung (if/switch auf tenant.branche) im Core ausserhalb policies/ - ADR-0026"
+    severity: HIGH
+    languages:
+      - javascript
+      - typescript
+    patterns:
+      - pattern-either:
+          - pattern: if ($X) { ... }
+          - pattern: switch ($X) { ... }
+      - metavariable-regex:
+          metavariable: $X
+          regex: 'tenant\.branche'
+    paths:
+      exclude:
+        - "*/policies/*"
+    metadata:
+      category: architecture
+      rule-id: arch-11
+      references:
+        - "ADR-0026 (Ports-and-Adapters, Core frei von Branchenlogik)"
+      fix: "Lagern Sie die Branchenverzweigung in eine dedizierte Policy/Resolver-Klasse unter policies/ aus."
+      notes: "Destructuring (`const { branche } = tenant;`) wird von dieser Regel nicht erfasst – das ist akzeptiert, solange die eigentliche Verzweigung innerhalb policies/ bleibt."

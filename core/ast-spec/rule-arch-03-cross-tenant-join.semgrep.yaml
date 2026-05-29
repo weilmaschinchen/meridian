@@ -1,0 +1,25 @@
+rules:
+  - id: arch-03-cross-tenant-join
+    patterns:
+      - pattern: $SQL
+      - metavariable-regex:
+          metavariable: $SQL
+          regex: >-
+            (?=.*tenant_([a-z0-9_-]+))
+            (?=.*tenant_(?!\1)[a-z0-9_-]+)
+    message: >-
+      Cross-Tenant-DB-JOIN-Pattern verboten (Charta P3, ADR-0009).
+      Detected SQL literal with two distinct tenant_ schemas.
+      Tenant-Daten dürfen nicht query-übergreifend kombiniert werden
+      außer via expliziten SuperAdmin-Cross-Schema-Pfad (ADR-0020 §3 crossSchemaQuery).
+    severity: CRITICAL
+    languages:
+      - js
+      - ts
+    metadata:
+      category: architecture
+      technology:
+        - mysql
+        - sql
+      cwe: "CWE-284: Improper Access Control"
+      charter: ADR-0009, ADR-0020 §3

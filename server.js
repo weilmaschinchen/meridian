@@ -20,7 +20,7 @@
 'use strict';
 
 var http = require('http');
-var cra = require('../admin/cra/cra-api');
+var cra = require('./core/cra-api');
 
 var PORT = parseInt(process.env.PORT, 10) || 3011;
 var AUTH_ENABLED = process.env.MERIDIAN_AUTH_ENABLED === '1' || process.env.MERIDIAN_AUTH_ENABLED === 'true';

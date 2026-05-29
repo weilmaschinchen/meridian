@@ -1,0 +1,23 @@
+rules:
+  - id: rule-arch-01-direct-llm-taint
+    severity: CRITICAL
+    languages:
+      - js
+      - ts
+    message: >-
+      Environment variable containing an LLM API key (process.env.*KEY) is used
+      in an HTTP call outside infrastructure/llm/. All LLM provider calls must
+      go through infrastructure/llm/PrivacyAwareLlmProxy (arch-01).
+    mode: taint
+    pattern-sources:
+      - pattern: $X = process.env.$...KEY
+      - pattern: process.env.$...KEY
+    pattern-sinks:
+      - pattern: $FN(...)
+        metavariable-regex:
+          metavariable: $FN
+          regex: ^(fetch|axios|got|request|superagent|http\.request|https\.request)$
+    options:
+      # Taint propagation tries to follow assignments, property lookups etc.
+      # Increase timeouts for large repos if needed.
+      timeout: 30

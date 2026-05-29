@@ -1,0 +1,30 @@
+rules:
+  - id: rule-arch-13-shared-symlink
+    message: >-
+      Symlink-Import von 'shared/' erkannt. Nutze
+      stattdessen das versionierte @kursflow/* npm-Paket.
+      (ADR-0026 §4)
+    severity: HIGH
+    languages:
+      - javascript
+      - typescript
+    patterns:
+      - pattern-either:
+          - pattern: |
+              import $X from $PATH
+          - pattern: |
+              require($PATH)
+      - metavariable-regex:
+          metavariable: $PATH
+          regex: '^\.{1,2}(?:/\.{1,2})*/shared/'
+    metadata:
+      category: architecture
+      technology:
+        - js
+        - ts
+      references:
+        - ADR-0026
+        - https://github.com/weilmaschinchen/kursmanager-platform/blob/main/docs/architecture/charter.md
+    fix: >-
+      Ersetze den relativen Import durch `@kursflow/shared` (einmal `npm install @kursflow/shared`)
+      und importiere das versionierte Modul.

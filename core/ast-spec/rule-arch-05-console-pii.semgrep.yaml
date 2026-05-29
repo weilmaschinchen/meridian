@@ -1,0 +1,24 @@
+rules:
+  - id: rule-arch-05-console-pii
+    message: >-
+      console.log/info/debug/warn mit PII-Variable (email/phone/iban/password/token/user/customer)
+      erkannt. Charta P7, ADR-0013 – PII darf nicht in Logs/Console ausgegeben werden.
+    severity: HIGH
+    languages:
+      - javascript
+      - typescript
+    patterns:
+      - pattern-either:
+          - pattern: console.$METHOD($...ARGS)
+    - metavariable-regex:
+        metavariable: $METHOD
+        regex: ^(log|info|debug|warn)$
+    - metavariable-regex:
+        metavariable: $...ARGS
+        regex: \b(email|phone|iban|password|token|user|customer)\b
+    metadata:
+      category: security
+      technology:
+        - javascript
+        - typescript
+      references:

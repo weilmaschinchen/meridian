@@ -1,0 +1,28 @@
+rules:
+  - id: arch-15-pflicht-ts-as-js
+    message: |
+      Pflicht-TS-File als .js (ADR-0027) – die folgenden Dateipfade müssen als TypeScript (.ts) vorliegen,
+      nicht als JavaScript (.js). Siehe architecture/charter.md, Regel P10.
+    severity: ERROR
+    languages:
+      - generic
+    paths:
+      include:
+        - "modules/*/port.js"
+        - "modules/*/domain/types.js"
+        - "modules/*/infrastructure/repository.js"
+        - "modules/*/policies/*.js"
+        - "modules/*/index.js"
+    # Dummy-Muster, das jede Zeile matcht – das Vorhandensein des Pfades allein triggert den Fund.
+    pattern: ".*"
+    metadata:
+      cwe:
+        - "CWE-1104: Use of Unmaintained Third Party Components"
+      category: security
+      technology:
+        - typescript
+      references:
+        - https://github.com/weilmaschinchen/kursmanager-platform/blob/main/docs/architecture/charter.md
+    fix: |
+      Benennen Sie die Datei in die entsprechende .ts-Datei um und passen Sie alle Imports an.
+

@@ -1,0 +1,42 @@
+rules:
+  - id: arch-07-mtls
+    message: "HTTP request to external service without HTTPS/mTLS (arch-07)"
+    severity: MEDIUM
+    languages:
+      - javascript
+      - typescript
+    patterns:
+      - pattern-either:
+          # direct call with single argument string
+          - pattern: $FUNC("$URL")
+          - pattern: $FUNC('$URL')
+          - pattern: $FUNC(`$URL`)
+          # direct call with additional arguments
+          - pattern: $FUNC("$URL", ...)
+          - pattern: $FUNC('$URL', ...)
+          - pattern: $FUNC(`$URL`, ...)
+          # method call (e.g., axios.get)
+          - pattern: $OBJ.$METHOD("$URL")
+          - pattern: $OBJ.$METHOD('$URL')
+          - pattern: $OBJ.$METHOD(`$URL`)
+          - pattern: $OBJ.$METHOD("$URL", ...)
+          - pattern: $OBJ.$METHOD('$URL', ...)
+          - pattern: $OBJ.$METHOD(`$URL`, ...)
+      - metavariable-regex:
+          metavariable: $URL
+          regex: "^http://(?!(localhost|127\\.0\\.0\\.1)).*"
+      - metavariable-regex:
+          metavariable: $FUNC
+          regex: "^(fetch|axios|got|undici)$"
+      - metavariable-regex:
+          metavariable: $OBJ
+          regex: "^(axios|got|undici)$"
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: "^(get|post|put|delete|patch|head|request|options|stream)$"
+    # only trigger when the URL starts with http:// and is not localhost/127.0.0.1
+    # (calls with additional options like {cert: ...} are still flagged because
+    #  the transport is plain HTTP; mTLS can only work over HTTPS)
+    metadata:
+      charter-rule: arch-07
+      references: [ADR-0011]

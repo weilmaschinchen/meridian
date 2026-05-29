@@ -1,0 +1,19 @@
+rules:
+  - id: arch-10-cross-context-import
+    severity: HIGH
+    languages: [javascript, typescript]
+    message: "Cross-context import outside port.ts/index.ts re-export. Imports with path ../<context>/* are only allowed in port.ts or index.ts. (ADR-0026)"
+    patterns:
+      - pattern: |
+          import ... from $PATH
+      - metavariable-regex:
+          metavariable: $PATH
+          regex: '^["']\.\.\/[a-zA-Z_][a-zA-Z0-9_-]*\/.*["']$'
+    paths:
+      exclude:
+        - "*/port.ts"
+        - "*/port.js"
+        - "*/index.ts"
+        - "*/index.js"
+    metadata:
+      adr: "ADR-0026"

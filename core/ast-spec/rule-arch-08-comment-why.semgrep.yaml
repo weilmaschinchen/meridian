@@ -1,0 +1,20 @@
+rules:
+  - id: arch-08-comment-why
+    severity: INFO
+    languages:
+      - javascript
+      - typescript
+    message: >
+      Comment before function declaration merely repeats the function name
+      and provides no explanation (Why). This violates Charter P1 and ADR-0007.
+      Comments should explain intent, rationale, or context; not just restate
+      the code identifier.
+    patterns:
+      - pattern-either:
+          - pattern: |
+              // $FUNC
+              function $FUNC(...) {
+                ...
+              }
+      # Add more patterns if needed (e.g., for arrow functions, block comments)
+      # but this captures the exact‑name‑duplication case.
