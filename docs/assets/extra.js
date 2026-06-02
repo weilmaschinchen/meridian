@@ -6,7 +6,7 @@ sd.text = JSON.stringify({
   '@type': 'SoftwareApplication',
   'name': 'Meridian — DevOps Gate',
   'description': 'A hard-blocking change gate for AI-generated code. Self-hosted, Apache-2.0, free alternative to Semgrep, GHAS and SonarQube.',
-  'url': 'https://oss.kurvenschule.cloud',
+  'url': 'https://your-meridian-instance.example.com',
   'downloadUrl': 'https://github.com/weilmaschinchen/meridian',
   'softwareVersion': '0.1.0',
   'operatingSystem': 'Linux, Docker',

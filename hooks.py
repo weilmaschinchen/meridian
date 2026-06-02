@@ -5,7 +5,7 @@ import re
 OG_TEMPLATE = '''
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Meridian — DevOps Gate">
-<meta property="og:image" content="https://oss.kurvenschule.cloud/assets/og-card.png">
+<meta property="og:image" content="https://your-meridian-instance.example.com/assets/og-card.png">
 <meta name="twitter:card" content="summary">
 <meta name="keywords" content="devops gate,change management,AI code review,semgrep alternative,self-hosted,apache-2.0,WORM audit,LLM code review">
 '''

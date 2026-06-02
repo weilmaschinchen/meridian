@@ -1,11 +1,11 @@
 site_name: Meridian — DevOps Gate
 site_url: https://oss.kurvenschule.cloud
 site_description: A hard-blocking change gate for AI-generated and human code. Self-hosted, Apache-2.0, air-gap capable. Free alternative to Semgrep, GHAS and SonarQube.
-site_author: weilmaschinchen
+site_author: Meridian Contributors
 repo_url: https://github.com/weilmaschinchen/meridian
 repo_name: weilmaschinchen/meridian
 edit_uri: edit/main/docs/
-copyright: Apache-2.0 — weilmaschinchen
+copyright: Apache-2.0 Licensed
 
 theme:
   name: material

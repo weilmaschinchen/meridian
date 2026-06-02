@@ -34,7 +34,7 @@ Background material to understand the ideas Meridian builds on. These are extern
 ## Meridian itself
 
 - **Source, issues, roadmap:** <https://github.com/weilmaschinchen/meridian>
-- **This documentation:** <https://oss.kurvenschule.cloud>
+- **This documentation:** <https://your-meridian-instance.example.com>
 - **License:** Apache-2.0.
 
 If a link is stale, search the title — these are all well-known, stable references.
