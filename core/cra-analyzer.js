@@ -311,7 +311,7 @@ function runAnalysis(opts) {
     var astTmp = '/tmp/cra-ast-' + Date.now() + '.json';
     fs.writeFileSync(astTmp, JSON.stringify({ diff: diff.substring(0, 50000) }));
     var astOut = execFileSync('curl', ['-s', '--max-time', '8', '-X', 'POST',
-      'http://10.89.1.42:3000/charter-check',
+      process.env.MERIDIAN_AST_ENGINE_URL || 'http://10.89.1.42:3000/charter-check',
       '-H', 'Content-Type: application/json', '-d', '@' + astTmp],
       { timeout: 10000, encoding: 'utf8' });
     try { fs.unlinkSync(astTmp); } catch(_) {}

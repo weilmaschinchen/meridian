@@ -77,3 +77,12 @@ CRA_MINIO_ENDPOINT=http://minio:9000
 
 Next: [Rules schema](rules-schema.md)
 
+
+
+## AST Engine
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MERIDIAN_AST_ENGINE_URL` | `http://10.89.1.42:3000` | URL of the Gate 2 AST engine. Override when running the engine externally. |
+| `MERIDIAN_AST_RULES_PATH` | *(unset)* | Path to a JSON file of custom regex rules. [Docs](../external-patterns/custom-ast-rules.md) |
+| `MERIDIAN_AST_RULES_DIR` | *(unset)* | Directory of custom JS rule modules. [Docs](../external-patterns/custom-ast-rules.md) |

@@ -4,7 +4,7 @@ This page is deliberately blunt. Knowing the limits up front saves you from disc
 
 ## Known gaps (today)
 
-### No `MERIDIAN_AST_RULES_DIR`
+### ~~No ~~ — **Resolved in v0.4.0**`MERIDIAN_AST_RULES_DIR`
 
 The biggest rough edge. Regex rules load at runtime from `MERIDIAN_RULES_PATH`, but **custom Semgrep/AST rules do not have an equivalent runtime directory variable.** To add an `arch-xx` rule you must either:
 

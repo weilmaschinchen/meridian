@@ -39,3 +39,16 @@ Background material to understand the ideas Meridian builds on. These are extern
 
 If a link is stale, search the title — these are all well-known, stable references.
 
+
+## Vocabulary & Shared Terminology
+
+Writing precise rule messages and prompts matters — especially for Gate 3 (LLM Review),
+which uses the rule message as context. Using established terminology activates rich
+knowledge in the LLM reviewer without requiring verbose descriptions.
+
+- **[Semantic Anchors](https://llm-coding.github.io/Semantic-Anchors/)** — curated catalog
+  of 46+ well-defined terms (Clean Architecture, SOLID, DDD, OWASP, ITIL, etc.) that serve
+  as shared vocabulary between developers and LLMs. When writing Meridian rule messages or
+  RFC commit messages, drawing from this vocabulary makes Gate 3 reviews sharper and
+  self-documenting for any developer reading the finding later.
+
