@@ -1,0 +1,3 @@
+/* Meridian brand tweaks */
+:root { --md-primary-fg-color: #00897b; }
+.md-header { box-shadow: 0 1px 6px rgba(0,0,0,.2); }
