@@ -1,3 +1,96 @@
-/* Meridian brand tweaks */
-:root { --md-primary-fg-color: #00897b; }
-.md-header { box-shadow: 0 1px 6px rgba(0,0,0,.2); }
+/* kurven.schule Brand — Meridian OSS Docs */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inconsolata:wght@400;500;600;700&display=swap');
+
+/* ── Light mode ─────────────────────────────────────────── */
+[data-md-color-scheme="default"] {
+  --md-primary-fg-color:        #4C1D5C;
+  --md-primary-fg-color--light: #6D28D9;
+  --md-primary-fg-color--dark:  #1A0A23;
+  --md-primary-bg-color:        #FFFFFF;
+  --md-primary-bg-color--light: #F8F5FD;
+  --md-accent-fg-color:         #D4501A;
+  --md-accent-fg-color--transparent: #D4501A1A;
+  --md-accent-bg-color:         #FFFFFF;
+  --md-default-fg-color:        #1A1E28;
+  --md-default-fg-color--light: #6B7280;
+  --md-default-bg-color:        #F8F9FB;
+  --md-code-bg-color:           #F3F0F8;
+  --md-code-fg-color:           #4C1D5C;
+}
+
+/* ── Dark mode ──────────────────────────────────────────── */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #EC4899;
+  --md-primary-fg-color--light: #F472B6;
+  --md-primary-fg-color--dark:  #A21CAF;
+  --md-primary-bg-color:        #1A0A23;
+  --md-primary-bg-color--light: #2D1B3D;
+  --md-accent-fg-color:         #D4501A;
+  --md-accent-fg-color--transparent: #D4501A1A;
+  --md-default-bg-color:        #130820;
+  --md-code-bg-color:           #1E1030;
+  --md-code-fg-color:           #F472B6;
+}
+
+/* ── Typography ─────────────────────────────────────────── */
+body, .md-typeset {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-feature-settings: 'cv11', 'ss01';
+}
+code, pre, kbd, .md-typeset code {
+  font-family: 'Inconsolata', ui-monospace, Menlo, monospace !important;
+}
+
+/* ── Header: Sunset-Gradient ────────────────────────────── */
+.md-header {
+  background: linear-gradient(90deg, #1A0A23 0%, #4C1D5C 40%, #A21CAF 75%, #6D28D9 100%) !important;
+  box-shadow: 0 2px 12px rgba(76,29,92,.35);
+}
+.md-tabs {
+  background: rgba(26,10,35,.85);
+  backdrop-filter: blur(8px);
+}
+
+/* ── Nav sidebar ────────────────────────────────────────── */
+.md-nav__link--active, .md-nav__link:hover {
+  color: #D4501A !important;
+}
+[data-md-color-scheme="default"] .md-nav__link--active {
+  font-weight: 700;
+}
+
+/* ── Admonitions ────────────────────────────────────────── */
+.md-typeset .admonition, .md-typeset details {
+  border-left-color: #4C1D5C;
+}
+
+/* ── Buttons / CTA ──────────────────────────────────────── */
+.md-typeset .md-button {
+  background: linear-gradient(90deg, #D4501A 0%, #EC4899 100%);
+  border: none;
+  color: #fff !important;
+  font-weight: 700;
+  border-radius: 6px;
+}
+.md-typeset .md-button:hover {
+  background: linear-gradient(90deg, #B8411A 0%, #D4508A 100%);
+}
+
+/* ── Tables ─────────────────────────────────────────────── */
+.md-typeset table:not([class]) th {
+  background: #4C1D5C;
+  color: #fff;
+}
+[data-md-color-scheme="slate"] .md-typeset table:not([class]) th {
+  background: #2D1B3D;
+}
+
+/* ── Code blocks ────────────────────────────────────────── */
+.md-typeset pre > code {
+  border-left: 3px solid #D4501A;
+}
+
+/* ── Footer ─────────────────────────────────────────────── */
+.md-footer {
+  background: #1A0A23;
+}
