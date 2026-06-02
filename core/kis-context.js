@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // kis-context.js — KIS semantic context fetch for CRA review enrichment
 // Calls an internal KB endpoint, returns a prompt block (or '' on failure).
 // All errors are graceful — CRA review continues without context if KIS unavailable.

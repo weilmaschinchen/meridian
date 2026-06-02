@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ;; rule-arch-11: Detects branching on tenant.branche outside of policies/
 ;; This tree-sitter query captures if/switch statements whose condition
 ;; contains a member access to tenant.branche. The actual path exclusion

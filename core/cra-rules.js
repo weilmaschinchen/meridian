@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-rules.js — Regel-Engine: laden, validieren, speichern
 var fs = require('fs');
 var path = require('path');

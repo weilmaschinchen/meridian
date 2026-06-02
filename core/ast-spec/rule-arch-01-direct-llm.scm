@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; rule-arch-01-direct-llm: Direct-LLM-Provider-Call (import)
 ; Detects import statements referencing known LLM SDK packages.
 ; This is a path-sensitive rule: findings outside infrastructure/llm/ are violations.

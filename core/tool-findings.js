@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/tool-findings.js — Aggregation + UPSERT von Tool-Outputs (Phase 1.1)
 //
 // Frisst Outputs von Semgrep, Trivy, Gitleaks, ESLint, Dependabot. Persistiert in

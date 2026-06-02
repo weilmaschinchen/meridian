@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-test-orchestrator.js — Test-Orchestrierung (CommonJS)
 // 7-Stufen-Pipeline + Failure-Matrix + Job-Tracking
 var crypto = require('crypto');

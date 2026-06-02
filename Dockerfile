@@ -19,7 +19,7 @@
 # ─────────────────────────────────────────────────────────────────────────
 # Stage 1 — builder: native Module kompilieren / Prebuilds ziehen
 # ─────────────────────────────────────────────────────────────────────────
-FROM node:20-bookworm-slim AS builder
+FROM node:22-bookworm-slim AS builder
 
 # Toolchain nur falls better-sqlite3 keinen Prebuild für die Plattform hat
 # (z. B. arm64 in manchen CI-Runnern). node-gyp braucht python3 + make + g++.
@@ -43,7 +43,7 @@ RUN npm ci --omit=dev \
 # ─────────────────────────────────────────────────────────────────────────
 # Stage 2 — runtime: schlankes Image ohne Compiler
 # ─────────────────────────────────────────────────────────────────────────
-FROM node:20-bookworm-slim AS runtime
+FROM node:22-bookworm-slim AS runtime
 
 # tini = korrektes PID-1-Signal-Handling (SIGTERM → graceful shutdown),
 # Ersatz für die Init-Funktion, die sonst PM2 übernommen hätte.

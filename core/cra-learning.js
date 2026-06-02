@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-learning.js — Lern-Engine + Reporting (CommonJS)
 // Fix-Patterns, Instruction-Hints, Session-Logs, Daily Summary
 var craDb = require('./cra-db');

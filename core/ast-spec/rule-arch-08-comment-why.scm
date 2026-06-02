@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; Tree-sitter query: comment node immediately before function_declaration
 ; Return comment node and function name for heuristic stem-compare in test.js
 ; Applicable to JavaScript/TypeScript

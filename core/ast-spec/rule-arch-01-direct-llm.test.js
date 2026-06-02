@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // rule-arch-01-direct-llm test skeleton
 'use strict';
 

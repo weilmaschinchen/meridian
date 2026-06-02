@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // rule-arch-16-schema-slug.test.js
 // Test-Skelett für Tenant-Schema-Slug-Validation
 

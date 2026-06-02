@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // rule-arch-09-adr-link.test.js
 // Tests für die Cross-Cutting-Regel ADR-Bezug bei Architektur-Änderungen
 

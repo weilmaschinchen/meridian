@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 rules:
   - id: arch-07-mtls
     message: "HTTP request to external service without HTTPS/mTLS (arch-07)"

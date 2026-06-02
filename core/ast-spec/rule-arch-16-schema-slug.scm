@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; rule-arch-16-schema-slug.scm
 ; Tree-sitter Query für CREATE SCHEMA mit Tenant-Schema-Namen
 ; Pattern-Only – cross-cutting: gilt für .sql-DDL-Dateien

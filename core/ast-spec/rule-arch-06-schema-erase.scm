@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; arch-06: Migrations-SQL mit PII-Spalte aber kein passendes Erase-Statement
 ; Cross-File-Check: Prüft ob zu einer CREATE TABLE mit PII-Spalte (email, phone, iban, tax_id, birthdate, address)
 ; das entsprechende <context>/erase.ts eine Lösch-Funktion für die Tabelle bereitstellt.

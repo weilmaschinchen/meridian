@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/github-status.js — CRA → GitHub Status Checks API
 // Postet den Analyse-Status als Commit Status nach GitHub. Fire-and-forget.
 var https = require('https');

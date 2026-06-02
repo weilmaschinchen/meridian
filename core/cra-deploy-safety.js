@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-deploy-safety.js — Deploy-Sicherheit (CommonJS)
 // Pre-Deploy Backup, Post-Deploy Health, Auto-Rollback, Circuit Breaker
 var child = require('child_process');

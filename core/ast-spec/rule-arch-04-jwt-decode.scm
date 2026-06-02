@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; rule-arch-04: JWT-Bearbeitung (verify/decode) ausserhalb auth/JwtVerifier.ts
 ; Charter P4, ADR-0010: JWT-Operationen dürfen nur in der zentralen
 ; JwtVerifier-Komponente ausgeführt werden. Andernorts sind sie verboten.

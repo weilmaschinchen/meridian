@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/fp-embeddings.js — Phase 1.4 (CRA-Strategie 2026-04-25)
 //
 // False-Positive-Pattern-Lernen via nomic-embed-text:

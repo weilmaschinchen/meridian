@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // rule-arch-14-cross-context-call.test.js
 // Test skeleton for arch-14: Cross-Context-Direkt-Funktionsaufruf
 

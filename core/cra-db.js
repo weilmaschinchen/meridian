@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-db.js — better-sqlite3 Datenbank fuer CRA (CommonJS)
 // Migration von sql.js: WAL-Modus, sofortige Disk-Writes, Crash-safe
 var Database = require('better-sqlite3');

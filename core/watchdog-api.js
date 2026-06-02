@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/watchdog-api.js — Schicht B Live-Watchdog (Vorbereitung 2026-04-30)
 //
 // Endpoints:

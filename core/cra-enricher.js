@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // cra-enricher.js — Finding-Anreicherung vor dem Nightworker
 // Laeuft taeglich 22:00 CET (90 Min vor Nightworker 23:30)
 // Fuer jedes offene Finding ohne konkrete Fix-Anleitung:

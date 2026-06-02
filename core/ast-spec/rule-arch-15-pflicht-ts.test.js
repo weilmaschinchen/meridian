@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // Test-Skeleton für Arch-15: Pflicht-TS-File als .js (ADR-0027)
 const assert = require('assert');
 

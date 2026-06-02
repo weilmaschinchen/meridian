@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /**
  * Test skeleton for arch-03-cross-tenant-join rule.
  * 

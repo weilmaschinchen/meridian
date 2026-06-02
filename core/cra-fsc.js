@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-fsc.js — Forward Schedule of Change Manager (CommonJS)
 var craDb = require('./cra-db');
 

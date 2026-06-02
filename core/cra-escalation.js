@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-escalation.js — Eskalations-Management (CommonJS)
 // Routing, SLA-Tracking, Email/SMS Channels
 var crypto = require('crypto');

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /**
  * Tests für semgrep-Regel arch-04-jwt-decode (JWT verify/decode ausserhalb
  * auth/JwtVerifier.ts). Prüft, dass Compliant-Code (erlaubte Pfade bzw.

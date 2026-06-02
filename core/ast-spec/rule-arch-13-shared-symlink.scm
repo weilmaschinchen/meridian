@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ;; rule-arch-13-shared-symlink.scm
 ;; Tree-sitter Query: erkennt Importe und require-Aufrufe auf einen shared/-Symlink.
 ;; ADR-0026 §4 — Shared Modules müssen versioniert sein.

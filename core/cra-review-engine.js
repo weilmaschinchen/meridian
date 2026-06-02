@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-review-engine.js — Code-Review Engine (CommonJS)
 // Statische Checks + LLM-Review (LiteLLM → Groq/Gemini → Anthropic)
 var https = require('https');

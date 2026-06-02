@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ;; rule-arch-10-cross-context-import
 ;; Tree-sitter query for this rule is NOT POSSIBLE because it depends on file name and directory context.
 ;; Use Semgrep rule in .semgrep.yaml for cross-context import detection.

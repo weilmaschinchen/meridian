@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-patcher.js — LLM-basierte Patch-Generierung (CommonJS)
 // Least-Cost: Groq → Gemini → Anthropic. Cross-Model-Review.
 var fs = require('fs');

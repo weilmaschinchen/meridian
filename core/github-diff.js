@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/github-diff.js — Diff via GitHub API holen (Fallback fuer Repos ohne lokalen Mirror)
 // Benoetigt Token mit Scope: Contents:read.
 var https = require('https');

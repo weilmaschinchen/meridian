@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/tool-findings-classifier.js — Phase 1.2 (CRA-Strategie 2026-04-25)
 // 2026-04-29: Qwen-Pre-Filter durch DeepSeek V4-Flash ersetzt (Mac-Ollama-LaunchAgents
 // wurden mit Pipeline-Switch deaktiviert; siehe docs/llm-pipeline-runbook.md).

@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; rule-arch-07-mtls
 ; Tree-sitter query to find HTTP (not HTTPS) requests to non‑localhost services.
 ; Matches calls like fetch("http://...") or axios.get("http://...") etc.

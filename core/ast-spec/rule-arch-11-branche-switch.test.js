@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /**
  * Testgerüst für rule-arch-11 (tenant.branche-Verzweigungen)
  * Beschreibt goodFixtures (kein Verstoß) + badFixtures (Verstoß)

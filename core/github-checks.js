@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/github-checks.js — Cache fuer GitHub check_run / check_suite / pull_request Events
 var craDb = require('./cra-db');
 var https = require('https');

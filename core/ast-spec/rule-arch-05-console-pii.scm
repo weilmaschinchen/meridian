@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; rule-arch-05-console-pii.scm
 ; Detects console.log, console.info, console.debug, console.warn
 ; calls whose arguments contain any PII global / variable reference

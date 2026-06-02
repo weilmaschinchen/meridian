@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; Rule: arch-03-cross-tenant-join
 ; Type: regex pattern (not tree-sitter)
 ; Description: Detects SQL strings containing two distinct tenant_<schema> references,

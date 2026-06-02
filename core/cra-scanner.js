@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-scanner.js — Statische Code-Scans + Finding-Erkennung (CommonJS)
 // Grep-basiert, kein LLM. Läuft auf dem Server, scannt Staging-Repos.
 var child = require('child_process');

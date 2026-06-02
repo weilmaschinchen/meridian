@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-analyzer.js — Autonome Diff-Analyse + GitHub/Forgejo Webhook
 var crypto = require('crypto');
 var child = require('child_process');

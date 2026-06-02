@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/minio-uploader.js — Minimal S3 PUT for CRA reports (no deps)
 'use strict';
 var crypto = require('crypto');

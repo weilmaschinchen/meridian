@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /**
  * Test skeleton for rule-arch-08-comment-why
  * Demonstrates goodFixtures (comment with Why) vs badFixtures (comment just repeats function name)

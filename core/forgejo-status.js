@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/forgejo-status.js — CRA → Forgejo Commit Status API
 // Pendant zu github-status.js. Fire-and-forget, Fehler werden geloggt.
 var https = require('https');

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /**
  * arch-12-mysql2-direct.test.js
  * Test-Skelett für Regel arch-12: mysql2-Import außerhalb infrastructure/

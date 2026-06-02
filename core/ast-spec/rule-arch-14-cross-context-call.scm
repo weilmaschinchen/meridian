@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ;; rule-arch-14-cross-context-call
 ;; ARCH Rule: Cross-Context-Direkt-Funktionsaufruf
 ;; ADR-0026 §2 — Ports-and-Adapters: Domain-Code darf keine direkten Funktionsaufrufe

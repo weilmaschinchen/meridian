@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // rule-arch-05-console-pii.test.js
 // Test skeleton for console.log with PII variable.
 //

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-nightworker.js — Autonomer Nacht-Worker (CommonJS)
 // PM2 Service: Scannt, plant, fixt Findings auf Staging. Nur nachts aktiv.
 var child = require('child_process');

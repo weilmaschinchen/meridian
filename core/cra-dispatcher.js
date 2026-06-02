@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/cra-dispatcher.js — Autonomous Dispatch Loop (CommonJS)
 // Steuert autonome Claude Code Sessions basierend auf FSC + Finding-Katalog
 var https = require('https');

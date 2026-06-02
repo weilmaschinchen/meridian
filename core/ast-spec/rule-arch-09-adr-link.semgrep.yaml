@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 # rule-arch-09-adr-link.semgrep.yaml
 # Cross-Cutting Rule: ADR-Bezug bei Architektur-Änderungen
 # Severity: INFO

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 // admin/cra/rfc-llm-review.js — Phase 2.1 (CRA-Strategie 2026-04-25)
 //
 // Zweiter Bewertungs-Pass pro RFC nach regel-basierter Analyse.

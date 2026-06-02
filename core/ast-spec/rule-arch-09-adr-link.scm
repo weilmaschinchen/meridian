@@ -1,3 +1,4 @@
+; SPDX-License-Identifier: Apache-2.0
 ; rule-arch-09-adr-link.scm
 ; Cross-Cutting Rule: ADR-Bezug bei Architektur-Änderungen
 ; Diese Regel wird nicht als Tree-sitter-Query implementiert, sondern als Heuristik im CRA-Detector.

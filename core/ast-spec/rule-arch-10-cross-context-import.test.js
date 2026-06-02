@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: Apache-2.0
 /*
  * Test skeleton for arch-10-cross-context-import
  * Run via Semgrep or a custom parser.
