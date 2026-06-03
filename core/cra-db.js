@@ -125,6 +125,31 @@ async function initCraDb() {
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN worm_decision_key TEXT"); } catch (e) {}
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN worm_decision_hash TEXT"); } catch (e) {}
 
+  // E6 (2026-06-03): CMDB-Graph — Blast-Radius + KRITIS-Auto-Erkennung
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN cmdb_blast_radius TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN cmdb_kritis_flag INTEGER DEFAULT 0"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN cmdb_source TEXT"); } catch (e) {}
+  db.exec(`CREATE TABLE IF NOT EXISTS cmdb_cache (
+    repo             TEXT PRIMARY KEY,
+    blast_radius     TEXT DEFAULT 'LOW',
+    kritis_flag      INTEGER DEFAULT 0,
+    cis_json         TEXT,
+    tenants_affected INTEGER DEFAULT 1,
+    cached_at        TEXT
+  )`);
+  db.exec(`CREATE TABLE IF NOT EXISTS cmdb_mappings (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    repo          TEXT NOT NULL,
+    ci_id         TEXT,
+    ci_name       TEXT,
+    kritis        INTEGER DEFAULT 0,
+    tenants       INTEGER DEFAULT 1,
+    customer_facing INTEGER DEFAULT 0,
+    source        TEXT DEFAULT 'manual',
+    updated_at    TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
+
   // E4 (2026-06-03): Policy-Authoring — Konfigurierbare Policy-Parameter
   db.exec(`CREATE TABLE IF NOT EXISTS policy_config (
     key        TEXT PRIMARY KEY,

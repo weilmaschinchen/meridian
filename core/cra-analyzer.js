@@ -360,15 +360,32 @@ function runAnalysis(opts) {
     } catch (e) { /* Enterprise-Modul nicht verfügbar */ }
   }
 
+  // E6: CMDB-Graph — Blast-Radius + KRITIS-Flag für Gate-4-Input anreichern
+  var cmdbResult = null;
+  if (process.env.MERIDIAN_ENTERPRISE) {
+    try {
+      var cmdbGraph = require('../../enterprise/modules/cmdb-graph');
+      cmdbResult = cmdbGraph.resolveSync(opts.repoName || '');
+    } catch (e) { /* cmdb-graph nicht verfügbar */ }
+  }
+
   // Gate 4 — Policy-Engine (built-in evaluator; OPA via enterprise/modules/policy-engine in E3+)
   var gate4 = 'SKIPPED'; var gate4Details = 'Policy-Engine not configured';
   try {
     var policyEvaluator = require('./policy-evaluator');
     var pInput = policyEvaluator.buildInput(
       { rfcId: 'RFC-TBD', repoName: opts.repoName || '', branch: opts.branch || 'main',
-        domain: 'devops', change_type: opts.changeType || 'standard', approvers: [] },
+        domain: 'devops', change_type: opts.changeType || 'standard', approvers: [],
+        // E6: CMDB-Graph-Werte überschreiben Defaults wenn verfügbar
+        blast_radius: cmdbResult ? cmdbResult.blast_radius : undefined,
+        kritis_flag_override: cmdbResult ? cmdbResult.kritis_flag : undefined },
       result, rules
     );
+    // E6: CMDB-Werte direkt in pInput schreiben (buildInput kennt sie noch nicht alle)
+    if (cmdbResult) {
+      pInput.blast_radius  = cmdbResult.blast_radius  || pInput.blast_radius;
+      pInput.kritis_flag   = cmdbResult.kritis_flag   || pInput.kritis_flag;
+    }
     var pResult = policyEvaluator.evaluate(pInput, rules.policy || {});
     gate4 = pResult.allow ? 'PASSED' : 'FAILED';
     gate4Details = pResult.reason;
@@ -447,6 +464,15 @@ function runAnalysis(opts) {
     // Auto-Findings: Neue Findings automatisch in Registry eintragen
     if (result.findings.length > 0) {
       autoRegisterFindings(result.findings, opts.repoName, rfcId);
+    }
+
+    // E6: CMDB-Werte in rfc_runs speichern
+    if (cmdbResult) {
+      try {
+        craDb.run("UPDATE rfc_runs SET cmdb_blast_radius=?, cmdb_kritis_flag=?, cmdb_source=? WHERE id=?",
+                  [cmdbResult.blast_radius, cmdbResult.kritis_flag ? 1 : 0,
+                   cmdbResult.source || 'default', rfcId]);
+      } catch (e) { /* migration pending */ }
     }
 
     // E3: ITIL-Felder nachpflegen wenn Klassifikation vorhanden
