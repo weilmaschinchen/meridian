@@ -150,6 +150,29 @@ async function initCraDb() {
   )`);
 
 
+  // T2 (2026-06-03): CAB-Management, PIR-Automation, SLA-Alerting
+  db.exec(`CREATE TABLE IF NOT EXISTS cab_meetings (
+    id            TEXT PRIMARY KEY,
+    scheduled_at  TEXT NOT NULL,
+    chair_user_id TEXT,
+    description   TEXT,
+    status        TEXT DEFAULT 'scheduled',
+    created_at    TEXT DEFAULT (datetime('now','localtime')),
+    closed_at     TEXT
+  )`);
+  db.exec(`CREATE TABLE IF NOT EXISTS cab_queue (
+    meeting_id    TEXT NOT NULL,
+    rfc_id        TEXT NOT NULL,
+    decision      TEXT,
+    decision_notes TEXT,
+    decided_by    TEXT,
+    decided_at    TEXT,
+    added_at      TEXT DEFAULT (datetime('now','localtime')),
+    PRIMARY KEY (meeting_id, rfc_id)
+  )`);
+  try { db.exec("ALTER TABLE nis2_incidents ADD COLUMN sla_breached INTEGER DEFAULT 0"); } catch (e) {}
+  try { db.exec("ALTER TABLE nis2_incidents ADD COLUMN triggered_at TEXT"); } catch (e) {}
+
   // E11 (2026-06-03): OIDC/SSO Identity — Session-Management
   db.exec(`CREATE TABLE IF NOT EXISTS identity_sessions (
     id           TEXT PRIMARY KEY,
