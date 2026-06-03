@@ -150,6 +150,18 @@ async function initCraDb() {
   )`);
 
 
+  // E9 (2026-06-03): Approval-Workflow
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN submitter_user_id TEXT"); } catch (e) {}
+  db.exec(`CREATE TABLE IF NOT EXISTS approval_records (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    rfc_id     TEXT NOT NULL,
+    user_id    TEXT NOT NULL,
+    action     TEXT NOT NULL,
+    comment    TEXT,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+  try { db.exec("CREATE INDEX IF NOT EXISTS idx_approval_rfc ON approval_records(rfc_id)"); } catch (e) {}
+
   // E8 (2026-06-03): Multi-Tenant Policy-Isolation
   db.exec(`CREATE TABLE IF NOT EXISTS tenant_policy_config (
     tenant_id  TEXT NOT NULL,
