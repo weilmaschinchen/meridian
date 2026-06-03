@@ -351,42 +351,28 @@ function runAnalysis(opts) {
   var gate2 = result.riskScore < blockThreshold ? 'PASSED' : 'FAILED';
   var gate3 = result.findings.some(function(f) { return f.type === 'secret'; }) ? 'FAILED' : 'PASSED';
 
-  // E3: ITIL Change-Typ-Klassifikation (Enterprise — no-op in OSS)
-  var itilClassification = null;
-  if (process.env.MERIDIAN_ENTERPRISE) {
-    try {
-      var itilChange = require('../../enterprise/modules/itil-change');
-      itilClassification = itilChange.classify(result.riskScore, result.riskLevel, opts);
-    } catch (e) { /* Enterprise-Modul nicht verfügbar */ }
-  }
+  var hooks = require('./hooks');
 
-  // E6: CMDB-Graph — Blast-Radius + KRITIS-Flag für Gate-4-Input anreichern
-  var cmdbResult = null;
-  if (process.env.MERIDIAN_ENTERPRISE) {
-    try {
-      var cmdbGraph = require('../../enterprise/modules/cmdb-graph');
-      cmdbResult = cmdbGraph.resolveSync(opts.repoName || '');
-    } catch (e) { /* cmdb-graph nicht verfügbar */ }
-  }
+  // E3: ITIL Change-Typ-Klassifikation via Hook (Enterprise registriert 'itil.classify')
+  var itilClassification = hooks.call('itil.classify', [result.riskScore, result.riskLevel, opts], null);
 
-  // Gate 4 — Policy-Engine (built-in evaluator; OPA via enterprise/modules/policy-engine in E3+)
+  // E6: CMDB-Graph via Hook (Enterprise registriert 'cmdb.resolveSync')
+  var cmdbResult = hooks.call('cmdb.resolveSync', [opts.repoName || ''], null);
+
+  // Gate 4 — built-in Policy-Evaluator (OSS); Enterprise kann via Hook 'gate4.evaluate' überschreiben
   var gate4 = 'SKIPPED'; var gate4Details = 'Policy-Engine not configured';
   try {
     var policyEvaluator = require('./policy-evaluator');
     var pInput = policyEvaluator.buildInput(
       { rfcId: 'RFC-TBD', repoName: opts.repoName || '', branch: opts.branch || 'main',
         domain: 'devops', change_type: opts.changeType || 'standard', approvers: [],
-        // E6: CMDB-Graph-Werte überschreiben Defaults wenn verfügbar
         blast_radius: cmdbResult ? cmdbResult.blast_radius : undefined,
-        kritis_flag_override: cmdbResult ? cmdbResult.kritis_flag : undefined },
+        kritis_flag:  cmdbResult ? cmdbResult.kritis_flag  : undefined },
       result, rules
     );
-    // E6: CMDB-Werte direkt in pInput schreiben (buildInput kennt sie noch nicht alle)
-    if (cmdbResult) {
-      pInput.blast_radius  = cmdbResult.blast_radius  || pInput.blast_radius;
-      pInput.kritis_flag   = cmdbResult.kritis_flag   || pInput.kritis_flag;
-    }
-    var pResult = policyEvaluator.evaluate(pInput, rules.policy || {});
+    // Gate-4-Hook: Enterprise kann built-in durch OPA ersetzen
+    var gate4Override = hooks.get('gate4.evaluate');
+    var pResult = gate4Override ? gate4Override(pInput, rules.policy || {}) : policyEvaluator.evaluate(pInput, rules.policy || {});
     gate4 = pResult.allow ? 'PASSED' : 'FAILED';
     gate4Details = pResult.reason;
   } catch (e) {
@@ -486,40 +472,33 @@ function runAnalysis(opts) {
       } catch (e) { /* Migration ggf. noch nicht gelaufen */ }
     }
 
-    // E5: Decision-Log → WORM (fire-and-forget, Enterprise-only)
-    if (process.env.MERIDIAN_ENTERPRISE && gate4 !== 'SKIPPED') {
-      try {
-        var auditLogger = require('../../enterprise/modules/audit-logger');
+    // E5: Decision-Log → WORM via Hook 'audit.logDecision' (Enterprise registriert)
+    if (gate4 !== 'SKIPPED') {
+      var auditHook = hooks.get('audit.logDecision');
+      if (auditHook) {
         var pInputForLog = typeof pInput !== 'undefined'
           ? pInput : { repo: opts.repoName || '', branch: opts.branch || '' };
-        auditLogger.logDecision(rfcId, pInputForLog,
+        auditHook(rfcId, pInputForLog,
           { decision: gate4 === 'PASSED' ? 'APPROVED' : 'BLOCKED',
             allow: gate4 === 'PASSED', violations: [], reason: gate4Details, source: 'builtin' },
           opts, craDb);
-      } catch (e) { /* audit-logger nicht verfügbar */ }
+      }
     }
 
-    // E3: SBOM-Gate — fire-and-forget nach APPROVED
-    if (overallStatus === 'APPROVED' && process.env.MERIDIAN_ENTERPRISE) {
-      try {
-        var sbomGate = require('../../enterprise/modules/sbom-gate');
-        sbomGate.generate(opts.repoPath || process.cwd(), rfcId, craDb);
-      } catch (e) { /* sbom-gate nicht verfügbar */ }
+    // E3: SBOM-Gate via Hook 'sbom.generate' (Enterprise registriert, fire-and-forget)
+    if (overallStatus === 'APPROVED') {
+      var sbomHook = hooks.get('sbom.generate');
+      if (sbomHook) sbomHook(opts.repoPath || process.cwd(), rfcId, craDb);
     }
 
-    // E3: NIS-2 Art.23 Incident-Flow — Trigger bei CRITICAL-Violation
-    if (process.env.NIS2_ENABLED === 'true' && process.env.MERIDIAN_ENTERPRISE) {
-      try {
-        var incidentMgmt = require('../../enterprise/modules/incident-mgmt');
-        var rfcForTrigger = { id: rfcId, overall_status: overallStatus,
-                              risk_level: result.riskLevel, gate4_status: gate4 };
-        if (incidentMgmt.shouldTrigger(rfcForTrigger)) {
-          var incidentId = incidentMgmt.createIncident(rfcForTrigger, craDb);
-          if (incidentId) {
-            try { craDb.run("UPDATE rfc_runs SET nis2_incident_id=? WHERE id=?", [incidentId, rfcId]); } catch (e) {}
-          }
-        }
-      } catch (e) { /* incident-mgmt nicht verfügbar */ }
+    // E3: NIS-2 Art.23 via Hook 'art23.trigger' (Enterprise registriert)
+    var art23Hook = hooks.get('art23.trigger');
+    if (art23Hook) {
+      var incidentId = art23Hook({ id: rfcId, overall_status: overallStatus,
+                                    risk_level: result.riskLevel, gate4_status: gate4 }, craDb);
+      if (incidentId) {
+        try { craDb.run("UPDATE rfc_runs SET nis2_incident_id=? WHERE id=?", [incidentId, rfcId]); } catch (e) {}
+      }
     }
 
     // Auto-SUPERSEDED: Wenn APPROVED, prüfe ob ältere BLOCKED RFCs abgelöst werden

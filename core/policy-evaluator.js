@@ -71,6 +71,11 @@ function buildInput(rfcOpts, analysisResult, rulesConfig) {
   var kritisRepos = rc.kritis_repos || [];
   var repo = rfcOpts.repoName || '';
 
+  // B2: CMDB-Werte direkt über rfcOpts durchreichen (E6-Integration)
+  var blastRadius  = rfcOpts.blast_radius !== undefined ? rfcOpts.blast_radius : 'LOW';
+  var kritisFlag   = rfcOpts.kritis_flag  !== undefined ? rfcOpts.kritis_flag
+                   : kritisRepos.some(function(r) { return r === repo; });
+
   return {
     change_id:            rfcOpts.rfcId || '',
     repo:                 repo,
@@ -82,19 +87,72 @@ function buildInput(rfcOpts, analysisResult, rulesConfig) {
     approvers:            rfcOpts.approvers || [],
     change_window_active: isChangeWindowActive(rc.change_windows || []),
     emergency_override_ok: !!rfcOpts.emergency_override_ok,
-    kritis_flag:          kritisRepos.some(function(r) { return r === repo; }),
-    blast_radius:         rfcOpts.blast_radius || 'LOW'
+    kritis_flag:          kritisFlag,
+    blast_radius:         blastRadius
   };
 }
 
-// isChangeWindowActive() — prüft ob aktueller Zeitpunkt in einem Change-Window liegt.
-// windows: Array von { cron_start, duration_h } (aus cra-rules.json)
-// Gibt true zurück wenn kein Window konfiguriert (fail-open: kein Window = immer aktiv).
+// isChangeWindowActive() — Q3: vollständige Cron-Auswertung.
+// windows: Array von { cron_start, duration_h, applies_to? }
+// Gibt true zurück wenn: (a) kein Window konfiguriert ODER (b) now in aktivem Window liegt.
+// Gibt false zurück wenn Windows konfiguriert sind und now in KEINEM liegt.
 function isChangeWindowActive(windows) {
   if (!windows || windows.length === 0) return true;
-  // Vereinfachte Implementierung für E1: Windows noch nicht ausgewertet → fail-open.
-  // Vollständige Cron-Auswertung kommt mit E3 (itil-change Change-Window-Engine).
-  return true;
+  var now = new Date();
+  return windows.some(function(w) { return _isWithinWindow(w, now); });
 }
 
-module.exports = { evaluate: evaluate, buildInput: buildInput, isChangeWindowActive: isChangeWindowActive };
+// _isWithinWindow — prüft ob `now` in einem einzelnen Change-Window liegt.
+// window.cron_start: Cron-Ausdruck (5 Felder: min hour dom month dow)
+// window.duration_h: Dauer in Stunden
+function _isWithinWindow(window, now) {
+  var durationMs = (window.duration_h || 1) * 3600 * 1000;
+  var lastStart  = _lastCronOccurrence(window.cron_start, now);
+  if (!lastStart) return false;
+  return now.getTime() - lastStart.getTime() <= durationMs;
+}
+
+// _parseCronPart — parst ein Cron-Feld in Array von Werten oder null (=wildcard).
+function _parseCronPart(part) {
+  if (part === '*') return null;
+  if (/^\d+$/.test(part)) return [parseInt(part, 10)];
+  if (/^\d+-\d+$/.test(part)) {
+    var r = part.split('-').map(Number), vals = [];
+    for (var i = r[0]; i <= r[1]; i++) vals.push(i);
+    return vals;
+  }
+  if (/^(\d+,)+\d+$/.test(part)) return part.split(',').map(Number);
+  return null;
+}
+
+function _matches(val, parsed) { return parsed === null || parsed.indexOf(val) !== -1; }
+
+// _lastCronOccurrence — findet letzten Auslösezeitpunkt vor `now` (max. 7 Tage zurück).
+function _lastCronOccurrence(cronExpr, now) {
+  if (!cronExpr) return null;
+  var parts = cronExpr.trim().split(/\s+/);
+  if (parts.length !== 5) return null;
+  var cMin = _parseCronPart(parts[0]);
+  var cHr  = _parseCronPart(parts[1]);
+  var cDom = _parseCronPart(parts[2]);
+  var cMon = _parseCronPart(parts[3]);
+  var cDow = _parseCronPart(parts[4]);
+
+  // Suche rückwärts in 1-Minuten-Schritten (max. 7 Tage = 10080 Minuten)
+  var candidate = new Date(now.getTime());
+  candidate.setSeconds(0, 0);
+  for (var i = 0; i < 10080; i++) {
+    if (_matches(candidate.getUTCMinutes(), cMin) &&
+        _matches(candidate.getUTCHours(),   cHr)  &&
+        _matches(candidate.getUTCDate(),    cDom) &&
+        _matches(candidate.getUTCMonth() + 1, cMon) &&
+        _matches(candidate.getUTCDay(),     cDow)) {
+      return new Date(candidate.getTime());
+    }
+    candidate.setTime(candidate.getTime() - 60000);
+  }
+  return null;
+}
+
+module.exports = { evaluate: evaluate, buildInput: buildInput,
+                   isChangeWindowActive: isChangeWindowActive, _lastCronOccurrence: _lastCronOccurrence };
