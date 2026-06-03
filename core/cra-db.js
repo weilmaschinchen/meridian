@@ -150,6 +150,26 @@ async function initCraDb() {
   )`);
 
 
+  // E10 (2026-06-03): Scheduled Changes
+  db.exec(`CREATE TABLE IF NOT EXISTS scheduled_changes (
+    id            TEXT PRIMARY KEY,
+    repo          TEXT NOT NULL,
+    branch        TEXT DEFAULT 'main',
+    description   TEXT,
+    diff_snapshot TEXT,
+    execute_at    TEXT NOT NULL,
+    change_type   TEXT DEFAULT 'standard',
+    window_name   TEXT,
+    status        TEXT DEFAULT 'pending',
+    rfc_id        TEXT,
+    created_by    TEXT,
+    created_at    TEXT DEFAULT (datetime('now','localtime')),
+    executed_at   TEXT,
+    cancelled_at  TEXT,
+    cancel_reason TEXT,
+    error_message TEXT
+  )`);
+
   // E9 (2026-06-03): Approval-Workflow
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN submitter_user_id TEXT"); } catch (e) {}
   db.exec(`CREATE TABLE IF NOT EXISTS approval_records (
