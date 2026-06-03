@@ -150,6 +150,17 @@ async function initCraDb() {
   )`);
 
 
+  // Items 6/7/11 (2026-06-03): Webhook-Receiver + Health + Billing
+  db.exec(`CREATE TABLE IF NOT EXISTS billing_usage (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id    TEXT NOT NULL,
+    event        TEXT NOT NULL,
+    unit         TEXT NOT NULL,
+    weight       INTEGER DEFAULT 1,
+    metadata_json TEXT,
+    created_at   TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
   // T3 (2026-06-03): Delegation of Authority + Risk Intelligence
   db.exec(`CREATE TABLE IF NOT EXISTS identity_delegations (
     id            TEXT PRIMARY KEY,
