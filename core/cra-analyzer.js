@@ -460,6 +460,19 @@ function runAnalysis(opts) {
       } catch (e) { /* Migration ggf. noch nicht gelaufen */ }
     }
 
+    // E5: Decision-Log → WORM (fire-and-forget, Enterprise-only)
+    if (process.env.MERIDIAN_ENTERPRISE && gate4 !== 'SKIPPED') {
+      try {
+        var auditLogger = require('../../enterprise/modules/audit-logger');
+        var pInputForLog = typeof pInput !== 'undefined'
+          ? pInput : { repo: opts.repoName || '', branch: opts.branch || '' };
+        auditLogger.logDecision(rfcId, pInputForLog,
+          { decision: gate4 === 'PASSED' ? 'APPROVED' : 'BLOCKED',
+            allow: gate4 === 'PASSED', violations: [], reason: gate4Details, source: 'builtin' },
+          opts, craDb);
+      } catch (e) { /* audit-logger nicht verfügbar */ }
+    }
+
     // E3: SBOM-Gate — fire-and-forget nach APPROVED
     if (overallStatus === 'APPROVED' && process.env.MERIDIAN_ENTERPRISE) {
       try {

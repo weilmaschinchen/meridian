@@ -121,6 +121,10 @@ async function initCraDb() {
     created_at      TEXT DEFAULT (datetime('now','localtime'))
   )`);
 
+  // E5 (2026-06-03): Decision-Log WORM + Reporting
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN worm_decision_key TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN worm_decision_hash TEXT"); } catch (e) {}
+
   // E4 (2026-06-03): Policy-Authoring — Konfigurierbare Policy-Parameter
   db.exec(`CREATE TABLE IF NOT EXISTS policy_config (
     key        TEXT PRIMARY KEY,
