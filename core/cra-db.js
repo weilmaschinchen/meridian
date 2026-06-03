@@ -150,6 +150,17 @@ async function initCraDb() {
   )`);
 
 
+  // E11 (2026-06-03): OIDC/SSO Identity — Session-Management
+  db.exec(`CREATE TABLE IF NOT EXISTS identity_sessions (
+    id           TEXT PRIMARY KEY,
+    user_id      TEXT NOT NULL,
+    email        TEXT,
+    roles_json   TEXT,
+    mfa_verified INTEGER DEFAULT 0,
+    expires_at   TEXT NOT NULL,
+    created_at   TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
   // E10 (2026-06-03): Scheduled Changes
   db.exec(`CREATE TABLE IF NOT EXISTS scheduled_changes (
     id            TEXT PRIMARY KEY,
