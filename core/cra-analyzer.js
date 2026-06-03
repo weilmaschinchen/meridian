@@ -62,6 +62,12 @@ var EXCLUDED_PATH_REGEXES = [
   /(^|\/)backend\/src\/platform\/db\/.*\.(js|ts|mjs|cjs)$/,
   /(^|\/)backend\/src\/(platform|modules)\/[^/]+\/infrastructure\/.*\.(js|ts|mjs|cjs)$/,
   /(^|\/)backend\/src\/(platform|modules)\/[^/]+\/repository\.(js|ts|mjs|cjs)$/,
+  // Migrations: per Definition Schema-/Daten-Operationen mit Raw-SQL (CREATE/ALTER/UPDATE,
+  // z. B. plans.limits_json). Migrationen sind kein Domain-Code — arch-12 (Raw-SQL nur in
+  // infrastructure/) ist hier ein FP. Sowohl die monolithische migrations.js als auch alle
+  // migrations.d/-Per-Datei-Migrationen nutzen db.query() legitim.
+  /(^|\/)backend\/src\/config\/migrations\.js$/,
+  /(^|\/)backend\/src\/config\/migrations\.d\/.*\.(js|ts|mjs|cjs)$/,
   // Superadmin-Layer: cross-tenant administrative queries per Design (RFC-E7C97DFC,
   // RFC-DCCD8649 Override). Kein reguläres Domain-Modul — SA-Routes dürfen direkt
   // auf db/pool zugreifen (PLattform-Ebene, nicht App-Domain-Ebene). arch-12 FP.
