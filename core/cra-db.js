@@ -150,6 +150,15 @@ async function initCraDb() {
   )`);
 
 
+  // E8 (2026-06-03): Multi-Tenant Policy-Isolation
+  db.exec(`CREATE TABLE IF NOT EXISTS tenant_policy_config (
+    tenant_id  TEXT NOT NULL,
+    key        TEXT NOT NULL,
+    value      TEXT,
+    updated_at TEXT,
+    PRIMARY KEY (tenant_id, key)
+  )`);
+
   // E4 (2026-06-03): Policy-Authoring — Konfigurierbare Policy-Parameter
   db.exec(`CREATE TABLE IF NOT EXISTS policy_config (
     key        TEXT PRIMARY KEY,
