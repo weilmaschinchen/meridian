@@ -97,6 +97,41 @@ async function initCraDb() {
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN gate4_status TEXT"); } catch (e) {}
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN gate4_details TEXT"); } catch (e) {}
 
+  // E3 (2026-06-03): ITIL Change-Typ + SBOM-Gate + NIS-2-Incident-Flow
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN itil_change_type TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN itil_pre_approved INTEGER DEFAULT 0"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN rollback_plan TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN pir_required INTEGER DEFAULT 0"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN sbom_path TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN sbom_hash TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN nis2_incident_id TEXT"); } catch (e) {}
+
+  // NIS-2 Incident-Tabelle (Art. 23 Eskalationsflow)
+  db.exec(`CREATE TABLE IF NOT EXISTS nis2_incidents (
+    id              TEXT PRIMARY KEY,
+    rfc_id          TEXT NOT NULL,
+    severity        TEXT,
+    triggered_at    TEXT,
+    bsi_24h_due     TEXT,
+    bsi_72h_due     TEXT,
+    bsi_1m_due      TEXT,
+    status          TEXT DEFAULT 'open',
+    template_json   TEXT,
+    notes           TEXT,
+    created_at      TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
+  // ITIL PIR-Tabelle (Post-Implementation Review)
+  db.exec(`CREATE TABLE IF NOT EXISTS itil_pir (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    rfc_id          TEXT NOT NULL,
+    implemented_at  TEXT,
+    status          TEXT DEFAULT 'pending',
+    notes           TEXT,
+    closed_at       TEXT,
+    created_at      TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
   // Hook-Events (deploy-guard + cra-tracker)
   db.exec(`CREATE TABLE IF NOT EXISTS hook_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

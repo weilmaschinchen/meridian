@@ -351,6 +351,15 @@ function runAnalysis(opts) {
   var gate2 = result.riskScore < blockThreshold ? 'PASSED' : 'FAILED';
   var gate3 = result.findings.some(function(f) { return f.type === 'secret'; }) ? 'FAILED' : 'PASSED';
 
+  // E3: ITIL Change-Typ-Klassifikation (Enterprise — no-op in OSS)
+  var itilClassification = null;
+  if (process.env.MERIDIAN_ENTERPRISE) {
+    try {
+      var itilChange = require('../../enterprise/modules/itil-change');
+      itilClassification = itilChange.classify(result.riskScore, result.riskLevel, opts);
+    } catch (e) { /* Enterprise-Modul nicht verfügbar */ }
+  }
+
   // Gate 4 — Policy-Engine (built-in evaluator; OPA via enterprise/modules/policy-engine in E3+)
   var gate4 = 'SKIPPED'; var gate4Details = 'Policy-Engine not configured';
   try {
@@ -438,6 +447,40 @@ function runAnalysis(opts) {
     // Auto-Findings: Neue Findings automatisch in Registry eintragen
     if (result.findings.length > 0) {
       autoRegisterFindings(result.findings, opts.repoName, rfcId);
+    }
+
+    // E3: ITIL-Felder nachpflegen wenn Klassifikation vorhanden
+    if (itilClassification) {
+      try {
+        craDb.run(
+          "UPDATE rfc_runs SET itil_change_type=?, itil_pre_approved=?, pir_required=? WHERE id=?",
+          [itilClassification.change_type, itilClassification.pre_approved ? 1 : 0,
+           itilClassification.requires_pir ? 1 : 0, rfcId]
+        );
+      } catch (e) { /* Migration ggf. noch nicht gelaufen */ }
+    }
+
+    // E3: SBOM-Gate — fire-and-forget nach APPROVED
+    if (overallStatus === 'APPROVED' && process.env.MERIDIAN_ENTERPRISE) {
+      try {
+        var sbomGate = require('../../enterprise/modules/sbom-gate');
+        sbomGate.generate(opts.repoPath || process.cwd(), rfcId, craDb);
+      } catch (e) { /* sbom-gate nicht verfügbar */ }
+    }
+
+    // E3: NIS-2 Art.23 Incident-Flow — Trigger bei CRITICAL-Violation
+    if (process.env.NIS2_ENABLED === 'true' && process.env.MERIDIAN_ENTERPRISE) {
+      try {
+        var incidentMgmt = require('../../enterprise/modules/incident-mgmt');
+        var rfcForTrigger = { id: rfcId, overall_status: overallStatus,
+                              risk_level: result.riskLevel, gate4_status: gate4 };
+        if (incidentMgmt.shouldTrigger(rfcForTrigger)) {
+          var incidentId = incidentMgmt.createIncident(rfcForTrigger, craDb);
+          if (incidentId) {
+            try { craDb.run("UPDATE rfc_runs SET nis2_incident_id=? WHERE id=?", [incidentId, rfcId]); } catch (e) {}
+          }
+        }
+      } catch (e) { /* incident-mgmt nicht verfügbar */ }
     }
 
     // Auto-SUPERSEDED: Wenn APPROVED, prüfe ob ältere BLOCKED RFCs abgelöst werden
