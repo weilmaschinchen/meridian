@@ -150,6 +150,29 @@ async function initCraDb() {
   )`);
 
 
+  // T3 (2026-06-03): Delegation of Authority + Risk Intelligence
+  db.exec(`CREATE TABLE IF NOT EXISTS identity_delegations (
+    id            TEXT PRIMARY KEY,
+    delegator_id  TEXT NOT NULL,
+    delegate_id   TEXT NOT NULL,
+    role          TEXT NOT NULL,
+    valid_from    TEXT NOT NULL,
+    valid_until   TEXT NOT NULL,
+    scope_json    TEXT,
+    reason        TEXT,
+    revoked       INTEGER DEFAULT 0,
+    revoked_by    TEXT,
+    revoked_at    TEXT,
+    created_at    TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+  db.exec(`CREATE TABLE IF NOT EXISTS risk_learning (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    rfc_id     TEXT NOT NULL,
+    action     TEXT NOT NULL,
+    user_id    TEXT,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
   // T2 (2026-06-03): ITSM-Adapter Referenz-Tabelle
   db.exec(`CREATE TABLE IF NOT EXISTS itsm_refs (
     rfc_id      TEXT PRIMARY KEY,
