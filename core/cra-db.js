@@ -121,6 +121,13 @@ async function initCraDb() {
     created_at      TEXT DEFAULT (datetime('now','localtime'))
   )`);
 
+  // E4 (2026-06-03): Policy-Authoring — Konfigurierbare Policy-Parameter
+  db.exec(`CREATE TABLE IF NOT EXISTS policy_config (
+    key        TEXT PRIMARY KEY,
+    value      TEXT,
+    updated_at TEXT
+  )`);
+
   // ITIL PIR-Tabelle (Post-Implementation Review)
   db.exec(`CREATE TABLE IF NOT EXISTS itil_pir (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
