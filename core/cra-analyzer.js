@@ -351,8 +351,24 @@ function runAnalysis(opts) {
   var gate2 = result.riskScore < blockThreshold ? 'PASSED' : 'FAILED';
   var gate3 = result.findings.some(function(f) { return f.type === 'secret'; }) ? 'FAILED' : 'PASSED';
 
+  // Gate 4 — Policy-Engine (built-in evaluator; OPA via enterprise/modules/policy-engine in E3+)
+  var gate4 = 'SKIPPED'; var gate4Details = 'Policy-Engine not configured';
+  try {
+    var policyEvaluator = require('./policy-evaluator');
+    var pInput = policyEvaluator.buildInput(
+      { rfcId: 'RFC-TBD', repoName: opts.repoName || '', branch: opts.branch || 'main',
+        domain: 'devops', change_type: opts.changeType || 'standard', approvers: [] },
+      result, rules
+    );
+    var pResult = policyEvaluator.evaluate(pInput, rules.policy || {});
+    gate4 = pResult.allow ? 'PASSED' : 'FAILED';
+    gate4Details = pResult.reason;
+  } catch (e) {
+    console.warn('[CRA/Analyzer] Gate 4 skipped:', e.message);
+  }
+
   // Defense-in-Depth: jedes Gate kann eigenständig blockieren (CRA-SELF-001)
-  var overallStatus = (gate1 === 'FAILED' || gate2 === 'FAILED' || gate3 === 'FAILED') ? 'BLOCKED' : 'APPROVED';
+  var overallStatus = (gate1 === 'FAILED' || gate2 === 'FAILED' || gate3 === 'FAILED' || gate4 === 'FAILED') ? 'BLOCKED' : 'APPROVED';
 
   // Re-Push desselben, noch BLOCKED Diffs: bestehenden RFC per diff_hash
   // WIEDERVERWENDEN statt Duplikat anzulegen (Vorfall 2026-05-29, ADR-0036).
@@ -387,6 +403,7 @@ function runAnalysis(opts) {
     'Gate 1 (Risk Assessment): ' + gate1,
     'Gate 2 (Score Threshold): ' + gate2,
     'Gate 3 (Secret Scan): ' + gate3,
+    'Gate 4 (Policy Engine): ' + gate4 + (gate4 !== 'SKIPPED' ? ' — ' + gate4Details : ''),
     ''
   ];
 
@@ -404,12 +421,13 @@ function runAnalysis(opts) {
   // In DB speichern
   try {
     craDb.run(
-      'INSERT OR REPLACE INTO rfc_runs (id, title, change_type, repo_path, app_name, diff_source, risk_score, risk_level, gate1_status, gate1_details, gate2_status, gate2_details, gate3_status, gate3_details, overall_status, approved_by, additions, deletions, findings_json, report_text, diff_hash, commit_sha, repo_full_name, branch) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      'INSERT OR REPLACE INTO rfc_runs (id, title, change_type, repo_path, app_name, diff_source, risk_score, risk_level, gate1_status, gate1_details, gate2_status, gate2_details, gate3_status, gate3_details, gate4_status, gate4_details, overall_status, approved_by, additions, deletions, findings_json, report_text, diff_hash, commit_sha, repo_full_name, branch) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
       [rfcId, title, opts.changeType || 'Normal Change', opts.repoPath || '', opts.repoName || '',
        opts.diffSource || 'webhook', result.riskScore, result.riskLevel,
        gate1, gate1 === 'PASSED' ? 'Keine Critical Findings' : 'Critical Findings gefunden',
        gate2, 'Score ' + result.riskScore + ' vs Threshold ' + blockThreshold,
        gate3, gate3 === 'PASSED' ? 'Keine Secrets gefunden' : 'Secrets im Code!',
+       gate4, gate4Details,
        overallStatus, 'CRA-Auto', result.additions, result.deletions,
        JSON.stringify(result.findings), reportText + '\n\n── Changed Files (Phase 2.4) ──\n' + formatFileChangesTable(extractFileChanges(diff)),
        diffHash, opts.commitSha || null, opts.repoFullName || null, opts.branch || null]

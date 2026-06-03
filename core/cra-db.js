@@ -91,6 +91,12 @@ async function initCraDb() {
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN status_change_log TEXT"); } catch (e) {}
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN status_re_eval_reason TEXT"); } catch (e) {}
 
+  // E2 (2026-06-03): Gate 4 — Policy-Engine (built-in oder OPA/Enterprise).
+  // gate4_status: 'PASSED'|'FAILED'|'SKIPPED' (SKIPPED wenn Policy-Engine nicht konfiguriert)
+  // gate4_details: menschenlesbare Begründung (violations[] oder 'all rules passed')
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN gate4_status TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN gate4_details TEXT"); } catch (e) {}
+
   // Hook-Events (deploy-guard + cra-tracker)
   db.exec(`CREATE TABLE IF NOT EXISTS hook_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
