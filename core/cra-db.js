@@ -150,6 +150,14 @@ async function initCraDb() {
   )`);
 
 
+  // T2 (2026-06-03): ITSM-Adapter Referenz-Tabelle
+  db.exec(`CREATE TABLE IF NOT EXISTS itsm_refs (
+    rfc_id      TEXT PRIMARY KEY,
+    adapter     TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    synced_at   TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
   // T2 (2026-06-03): CAB-Management, PIR-Automation, SLA-Alerting
   db.exec(`CREATE TABLE IF NOT EXISTS cab_meetings (
     id            TEXT PRIMARY KEY,
