@@ -357,8 +357,36 @@ function runAnalysis(opts) {
   var gate2 = result.riskScore < blockThreshold ? 'PASSED' : 'FAILED';
   var gate3 = result.findings.some(function(f) { return f.type === 'secret'; }) ? 'FAILED' : 'PASSED';
 
+  var hooks = require('./hooks');
+
+  // E3: ITIL Change-Typ-Klassifikation via Hook (Enterprise registriert 'itil.classify')
+  var itilClassification = hooks.call('itil.classify', [result.riskScore, result.riskLevel, opts], null);
+
+  // E6: CMDB-Graph via Hook (Enterprise registriert 'cmdb.resolveSync')
+  var cmdbResult = hooks.call('cmdb.resolveSync', [opts.repoName || ''], null);
+
+  // Gate 4 — built-in Policy-Evaluator (OSS); Enterprise kann via Hook 'gate4.evaluate' überschreiben
+  var gate4 = 'SKIPPED'; var gate4Details = 'Policy-Engine not configured';
+  try {
+    var policyEvaluator = require('./policy-evaluator');
+    var pInput = policyEvaluator.buildInput(
+      { rfcId: 'RFC-TBD', repoName: opts.repoName || '', branch: opts.branch || 'main',
+        domain: 'devops', change_type: opts.changeType || 'standard', approvers: [],
+        blast_radius: cmdbResult ? cmdbResult.blast_radius : undefined,
+        kritis_flag:  cmdbResult ? cmdbResult.kritis_flag  : undefined },
+      result, rules
+    );
+    // Gate-4-Hook: Enterprise kann built-in durch OPA ersetzen
+    var gate4Override = hooks.get('gate4.evaluate');
+    var pResult = gate4Override ? gate4Override(pInput, rules.policy || {}) : policyEvaluator.evaluate(pInput, rules.policy || {});
+    gate4 = pResult.allow ? 'PASSED' : 'FAILED';
+    gate4Details = pResult.reason;
+  } catch (e) {
+    console.warn('[CRA/Analyzer] Gate 4 skipped:', e.message);
+  }
+
   // Defense-in-Depth: jedes Gate kann eigenständig blockieren (CRA-SELF-001)
-  var overallStatus = (gate1 === 'FAILED' || gate2 === 'FAILED' || gate3 === 'FAILED') ? 'BLOCKED' : 'APPROVED';
+  var overallStatus = (gate1 === 'FAILED' || gate2 === 'FAILED' || gate3 === 'FAILED' || gate4 === 'FAILED') ? 'BLOCKED' : 'APPROVED';
 
   // Re-Push desselben, noch BLOCKED Diffs: bestehenden RFC per diff_hash
   // WIEDERVERWENDEN statt Duplikat anzulegen (Vorfall 2026-05-29, ADR-0036).
@@ -393,6 +421,7 @@ function runAnalysis(opts) {
     'Gate 1 (Risk Assessment): ' + gate1,
     'Gate 2 (Score Threshold): ' + gate2,
     'Gate 3 (Secret Scan): ' + gate3,
+    'Gate 4 (Policy Engine): ' + gate4 + (gate4 !== 'SKIPPED' ? ' — ' + gate4Details : ''),
     ''
   ];
 
@@ -410,12 +439,13 @@ function runAnalysis(opts) {
   // In DB speichern
   try {
     craDb.run(
-      'INSERT OR REPLACE INTO rfc_runs (id, title, change_type, repo_path, app_name, diff_source, risk_score, risk_level, gate1_status, gate1_details, gate2_status, gate2_details, gate3_status, gate3_details, overall_status, approved_by, additions, deletions, findings_json, report_text, diff_hash, commit_sha, repo_full_name, branch) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
+      'INSERT OR REPLACE INTO rfc_runs (id, title, change_type, repo_path, app_name, diff_source, risk_score, risk_level, gate1_status, gate1_details, gate2_status, gate2_details, gate3_status, gate3_details, gate4_status, gate4_details, overall_status, approved_by, additions, deletions, findings_json, report_text, diff_hash, commit_sha, repo_full_name, branch) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)',
       [rfcId, title, opts.changeType || 'Normal Change', opts.repoPath || '', opts.repoName || '',
        opts.diffSource || 'webhook', result.riskScore, result.riskLevel,
        gate1, gate1 === 'PASSED' ? 'Keine Critical Findings' : 'Critical Findings gefunden',
        gate2, 'Score ' + result.riskScore + ' vs Threshold ' + blockThreshold,
        gate3, gate3 === 'PASSED' ? 'Keine Secrets gefunden' : 'Secrets im Code!',
+       gate4, gate4Details,
        overallStatus, 'CRA-Auto', result.additions, result.deletions,
        JSON.stringify(result.findings), reportText + '\n\n── Changed Files (Phase 2.4) ──\n' + formatFileChangesTable(extractFileChanges(diff)),
        diffHash, opts.commitSha || null, opts.repoFullName || null, opts.branch || null]
@@ -426,6 +456,55 @@ function runAnalysis(opts) {
     // Auto-Findings: Neue Findings automatisch in Registry eintragen
     if (result.findings.length > 0) {
       autoRegisterFindings(result.findings, opts.repoName, rfcId);
+    }
+
+    // E6: CMDB-Werte in rfc_runs speichern
+    if (cmdbResult) {
+      try {
+        craDb.run("UPDATE rfc_runs SET cmdb_blast_radius=?, cmdb_kritis_flag=?, cmdb_source=? WHERE id=?",
+                  [cmdbResult.blast_radius, cmdbResult.kritis_flag ? 1 : 0,
+                   cmdbResult.source || 'default', rfcId]);
+      } catch (e) { /* migration pending */ }
+    }
+
+    // E3: ITIL-Felder nachpflegen wenn Klassifikation vorhanden
+    if (itilClassification) {
+      try {
+        craDb.run(
+          "UPDATE rfc_runs SET itil_change_type=?, itil_pre_approved=?, pir_required=? WHERE id=?",
+          [itilClassification.change_type, itilClassification.pre_approved ? 1 : 0,
+           itilClassification.requires_pir ? 1 : 0, rfcId]
+        );
+      } catch (e) { /* Migration ggf. noch nicht gelaufen */ }
+    }
+
+    // E5: Decision-Log → WORM via Hook 'audit.logDecision' (Enterprise registriert)
+    if (gate4 !== 'SKIPPED') {
+      var auditHook = hooks.get('audit.logDecision');
+      if (auditHook) {
+        var pInputForLog = typeof pInput !== 'undefined'
+          ? pInput : { repo: opts.repoName || '', branch: opts.branch || '' };
+        auditHook(rfcId, pInputForLog,
+          { decision: gate4 === 'PASSED' ? 'APPROVED' : 'BLOCKED',
+            allow: gate4 === 'PASSED', violations: [], reason: gate4Details, source: 'builtin' },
+          opts, craDb);
+      }
+    }
+
+    // E3: SBOM-Gate via Hook 'sbom.generate' (Enterprise registriert, fire-and-forget)
+    if (overallStatus === 'APPROVED') {
+      var sbomHook = hooks.get('sbom.generate');
+      if (sbomHook) sbomHook(opts.repoPath || process.cwd(), rfcId, craDb);
+    }
+
+    // E3: NIS-2 Art.23 via Hook 'art23.trigger' (Enterprise registriert)
+    var art23Hook = hooks.get('art23.trigger');
+    if (art23Hook) {
+      var incidentId = art23Hook({ id: rfcId, overall_status: overallStatus,
+                                    risk_level: result.riskLevel, gate4_status: gate4 }, craDb);
+      if (incidentId) {
+        try { craDb.run("UPDATE rfc_runs SET nis2_incident_id=? WHERE id=?", [incidentId, rfcId]); } catch (e) {}
+      }
     }
 
     // Auto-SUPERSEDED: Wenn APPROVED, prüfe ob ältere BLOCKED RFCs abgelöst werden

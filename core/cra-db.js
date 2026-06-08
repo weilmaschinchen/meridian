@@ -91,6 +91,200 @@ async function initCraDb() {
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN status_change_log TEXT"); } catch (e) {}
   try { db.exec("ALTER TABLE rfc_runs ADD COLUMN status_re_eval_reason TEXT"); } catch (e) {}
 
+  // E2 (2026-06-03): Gate 4 — Policy-Engine (built-in oder OPA/Enterprise).
+  // gate4_status: 'PASSED'|'FAILED'|'SKIPPED' (SKIPPED wenn Policy-Engine nicht konfiguriert)
+  // gate4_details: menschenlesbare Begründung (violations[] oder 'all rules passed')
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN gate4_status TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN gate4_details TEXT"); } catch (e) {}
+
+  // E3 (2026-06-03): ITIL Change-Typ + SBOM-Gate + NIS-2-Incident-Flow
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN itil_change_type TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN itil_pre_approved INTEGER DEFAULT 0"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN rollback_plan TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN pir_required INTEGER DEFAULT 0"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN sbom_path TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN sbom_hash TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN nis2_incident_id TEXT"); } catch (e) {}
+
+  // NIS-2 Incident-Tabelle (Art. 23 Eskalationsflow)
+  db.exec(`CREATE TABLE IF NOT EXISTS nis2_incidents (
+    id              TEXT PRIMARY KEY,
+    rfc_id          TEXT NOT NULL,
+    severity        TEXT,
+    triggered_at    TEXT,
+    bsi_24h_due     TEXT,
+    bsi_72h_due     TEXT,
+    bsi_1m_due      TEXT,
+    status          TEXT DEFAULT 'open',
+    template_json   TEXT,
+    notes           TEXT,
+    created_at      TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
+  // E5 (2026-06-03): Decision-Log WORM + Reporting
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN worm_decision_key TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN worm_decision_hash TEXT"); } catch (e) {}
+
+  // E6 (2026-06-03): CMDB-Graph — Blast-Radius + KRITIS-Auto-Erkennung
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN cmdb_blast_radius TEXT"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN cmdb_kritis_flag INTEGER DEFAULT 0"); } catch (e) {}
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN cmdb_source TEXT"); } catch (e) {}
+  db.exec(`CREATE TABLE IF NOT EXISTS cmdb_cache (
+    repo             TEXT PRIMARY KEY,
+    blast_radius     TEXT DEFAULT 'LOW',
+    kritis_flag      INTEGER DEFAULT 0,
+    cis_json         TEXT,
+    tenants_affected INTEGER DEFAULT 1,
+    cached_at        TEXT
+  )`);
+  db.exec(`CREATE TABLE IF NOT EXISTS cmdb_mappings (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    repo          TEXT NOT NULL,
+    ci_id         TEXT,
+    ci_name       TEXT,
+    kritis        INTEGER DEFAULT 0,
+    tenants       INTEGER DEFAULT 1,
+    customer_facing INTEGER DEFAULT 0,
+    source        TEXT DEFAULT 'manual',
+    updated_at    TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
+
+  // Items 6/7/11 (2026-06-03): Webhook-Receiver + Health + Billing
+  db.exec(`CREATE TABLE IF NOT EXISTS billing_usage (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    tenant_id    TEXT NOT NULL,
+    event        TEXT NOT NULL,
+    unit         TEXT NOT NULL,
+    weight       INTEGER DEFAULT 1,
+    metadata_json TEXT,
+    created_at   TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
+  // T3 (2026-06-03): Delegation of Authority + Risk Intelligence
+  db.exec(`CREATE TABLE IF NOT EXISTS identity_delegations (
+    id            TEXT PRIMARY KEY,
+    delegator_id  TEXT NOT NULL,
+    delegate_id   TEXT NOT NULL,
+    role          TEXT NOT NULL,
+    valid_from    TEXT NOT NULL,
+    valid_until   TEXT NOT NULL,
+    scope_json    TEXT,
+    reason        TEXT,
+    revoked       INTEGER DEFAULT 0,
+    revoked_by    TEXT,
+    revoked_at    TEXT,
+    created_at    TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+  db.exec(`CREATE TABLE IF NOT EXISTS risk_learning (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    rfc_id     TEXT NOT NULL,
+    action     TEXT NOT NULL,
+    user_id    TEXT,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
+  // T2 (2026-06-03): ITSM-Adapter Referenz-Tabelle
+  db.exec(`CREATE TABLE IF NOT EXISTS itsm_refs (
+    rfc_id      TEXT PRIMARY KEY,
+    adapter     TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    synced_at   TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
+  // T2 (2026-06-03): CAB-Management, PIR-Automation, SLA-Alerting
+  db.exec(`CREATE TABLE IF NOT EXISTS cab_meetings (
+    id            TEXT PRIMARY KEY,
+    scheduled_at  TEXT NOT NULL,
+    chair_user_id TEXT,
+    description   TEXT,
+    status        TEXT DEFAULT 'scheduled',
+    created_at    TEXT DEFAULT (datetime('now','localtime')),
+    closed_at     TEXT
+  )`);
+  db.exec(`CREATE TABLE IF NOT EXISTS cab_queue (
+    meeting_id    TEXT NOT NULL,
+    rfc_id        TEXT NOT NULL,
+    decision      TEXT,
+    decision_notes TEXT,
+    decided_by    TEXT,
+    decided_at    TEXT,
+    added_at      TEXT DEFAULT (datetime('now','localtime')),
+    PRIMARY KEY (meeting_id, rfc_id)
+  )`);
+  try { db.exec("ALTER TABLE nis2_incidents ADD COLUMN sla_breached INTEGER DEFAULT 0"); } catch (e) {}
+  try { db.exec("ALTER TABLE nis2_incidents ADD COLUMN triggered_at TEXT"); } catch (e) {}
+
+  // E11 (2026-06-03): OIDC/SSO Identity — Session-Management
+  db.exec(`CREATE TABLE IF NOT EXISTS identity_sessions (
+    id           TEXT PRIMARY KEY,
+    user_id      TEXT NOT NULL,
+    email        TEXT,
+    roles_json   TEXT,
+    mfa_verified INTEGER DEFAULT 0,
+    expires_at   TEXT NOT NULL,
+    created_at   TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
+  // E10 (2026-06-03): Scheduled Changes
+  db.exec(`CREATE TABLE IF NOT EXISTS scheduled_changes (
+    id            TEXT PRIMARY KEY,
+    repo          TEXT NOT NULL,
+    branch        TEXT DEFAULT 'main',
+    description   TEXT,
+    diff_snapshot TEXT,
+    execute_at    TEXT NOT NULL,
+    change_type   TEXT DEFAULT 'standard',
+    window_name   TEXT,
+    status        TEXT DEFAULT 'pending',
+    rfc_id        TEXT,
+    created_by    TEXT,
+    created_at    TEXT DEFAULT (datetime('now','localtime')),
+    executed_at   TEXT,
+    cancelled_at  TEXT,
+    cancel_reason TEXT,
+    error_message TEXT
+  )`);
+
+  // E9 (2026-06-03): Approval-Workflow
+  try { db.exec("ALTER TABLE rfc_runs ADD COLUMN submitter_user_id TEXT"); } catch (e) {}
+  db.exec(`CREATE TABLE IF NOT EXISTS approval_records (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    rfc_id     TEXT NOT NULL,
+    user_id    TEXT NOT NULL,
+    action     TEXT NOT NULL,
+    comment    TEXT,
+    created_at TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+  try { db.exec("CREATE INDEX IF NOT EXISTS idx_approval_rfc ON approval_records(rfc_id)"); } catch (e) {}
+
+  // E8 (2026-06-03): Multi-Tenant Policy-Isolation
+  db.exec(`CREATE TABLE IF NOT EXISTS tenant_policy_config (
+    tenant_id  TEXT NOT NULL,
+    key        TEXT NOT NULL,
+    value      TEXT,
+    updated_at TEXT,
+    PRIMARY KEY (tenant_id, key)
+  )`);
+
+  // E4 (2026-06-03): Policy-Authoring — Konfigurierbare Policy-Parameter
+  db.exec(`CREATE TABLE IF NOT EXISTS policy_config (
+    key        TEXT PRIMARY KEY,
+    value      TEXT,
+    updated_at TEXT
+  )`);
+
+  // ITIL PIR-Tabelle (Post-Implementation Review)
+  db.exec(`CREATE TABLE IF NOT EXISTS itil_pir (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    rfc_id          TEXT NOT NULL,
+    implemented_at  TEXT,
+    status          TEXT DEFAULT 'pending',
+    notes           TEXT,
+    closed_at       TEXT,
+    created_at      TEXT DEFAULT (datetime('now','localtime'))
+  )`);
+
   // Hook-Events (deploy-guard + cra-tracker)
   db.exec(`CREATE TABLE IF NOT EXISTS hook_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

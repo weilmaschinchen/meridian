@@ -103,6 +103,8 @@ nav:
   - Integrations:
     - Forgejo: integrations/forgejo.md
     - GitHub: integrations/github.md
+    - GitLab: integrations/gitlab.md
+    - Claude Code: integrations/claude-code.md
   - External Patterns:
     - Overview: external-patterns/overview.md
     - Custom Risk Rules: external-patterns/custom-risk-rules.md
@@ -111,6 +113,7 @@ nav:
     - Gaps & Roadmap: external-patterns/gaps-and-roadmap.md
   - How-To:
     - Gate AI-Generated Code: how-to/ai-generated-code.md
+    - Build an Agentic Fix Loop: how-to/agent-workflow.md
     - Understand BLOCKED & Override: how-to/block-and-override.md
     - Control LLM Costs: how-to/llm-cost-control.md
   - Scenarios:
@@ -119,6 +122,8 @@ nav:
     - Regulated Domain: scenarios/regulated.md
   - Reference:
     - API Endpoints: reference/api-endpoints.md
+    - MCP Tools: reference/mcp-api.md
+    - Authentication & RBAC: reference/auth.md
     - AST Rules Catalog: reference/ast-rules-catalog.md
   - Resources:
     - Meridian vs Alternatives: resources/comparisons.md
